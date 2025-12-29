@@ -6,6 +6,7 @@ export interface User {
   last_name?: string;
   role: "admin" | "teacher" | "student";
   created_at: string;
+  updated_at?: string;
 }
 
 export interface Class {

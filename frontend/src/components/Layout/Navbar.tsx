@@ -129,14 +129,26 @@ export const Navbar: React.FC = () => {
       <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
         {user ? (
           <>
-            <span style={{ 
-              fontSize: "var(--font-size-sm, 14px)",
-              padding: "6px 12px",
-              backgroundColor: "rgba(255, 255, 255, 0.1)",
-              borderRadius: "var(--radius-md, 6px)",
-            }}>
+            <Link
+              to="/profile"
+              style={{
+                color: "white",
+                textDecoration: "none",
+                fontSize: "var(--font-size-sm, 14px)",
+                padding: "6px 12px",
+                backgroundColor: "rgba(255, 255, 255, 0.1)",
+                borderRadius: "var(--radius-md, 6px)",
+                transition: "background-color 0.2s ease",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = "rgba(255, 255, 255, 0.2)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = "rgba(255, 255, 255, 0.1)";
+              }}
+            >
               {user.username} ({user.role === "admin" ? "管理员" : user.role === "teacher" ? "教师" : "学生"})
-            </span>
+            </Link>
             <button
               onClick={handleLogout}
               style={{

@@ -124,6 +124,24 @@ class ApiClient {
     return response.data;
   }
 
+  async updateProfile(data: {
+    email?: string;
+    first_name?: string;
+    last_name?: string;
+  }): Promise<User> {
+    const response = await this.client.patch("/auth/profile/", data);
+    return response.data;
+  }
+
+  async changePassword(data: {
+    old_password: string;
+    new_password: string;
+    new_password2: string;
+  }): Promise<{ message: string }> {
+    const response = await this.client.post("/auth/profile/password/", data);
+    return response.data;
+  }
+
   // 班级相关
   async getClasses(): Promise<Class[]> {
     const response = await this.client.get("/classes/");

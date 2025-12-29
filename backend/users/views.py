@@ -8,6 +8,7 @@ from .serializers import (
     UserSerializer,
     RegisterSerializer,
     UserDetailSerializer,
+    PasswordChangeSerializer,
 )
 from .permissions import IsAdmin, IsTeacherOrAdmin
 
@@ -35,12 +36,31 @@ class RegisterView(generics.CreateAPIView):
         }, status=status.HTTP_201_CREATED)
 
 
-@api_view(["GET"])
+@api_view(["GET", "PATCH"])
 @permission_classes([permissions.IsAuthenticated])
 def user_profile(request):
-    """获取当前用户信息"""
-    serializer = UserDetailSerializer(request.user)
-    return Response(serializer.data)
+    """获取或更新当前用户信息"""
+    if request.method == "GET":
+        serializer = UserDetailSerializer(request.user)
+        return Response(serializer.data)
+    elif request.method == "PATCH":
+        # 用户只能修改自己的信息，且不能修改角色
+        serializer = UserDetailSerializer(
+            request.user, 
+            data=request.data, 
+            partial=True
+        )
+        serializer.is_valid(raise_exception=True)
+        
+        # 不允许修改角色
+        if "role" in request.data:
+            return Response(
+                {"error": "不能修改自己的角色"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        serializer.save()
+        return Response(serializer.data)
 
 
 @api_view(["GET"])
@@ -130,3 +150,28 @@ def delete_user(request, user_id):
     
     target_user.delete()
     return Response({"message": "用户删除成功"}, status=status.HTTP_200_OK)
+
+
+@api_view(["POST"])
+@permission_classes([permissions.IsAuthenticated])
+def change_password(request):
+    """修改当前用户密码"""
+    serializer = PasswordChangeSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    
+    user = request.user
+    old_password = serializer.validated_data["old_password"]
+    new_password = serializer.validated_data["new_password"]
+    
+    # 验证旧密码
+    if not user.check_password(old_password):
+        return Response(
+            {"error": "原密码错误"},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    
+    # 设置新密码
+    user.set_password(new_password)
+    user.save()
+    
+    return Response({"message": "密码修改成功"}, status=status.HTTP_200_OK)

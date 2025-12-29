@@ -15,6 +15,7 @@ import { ClassDetail } from "./pages/ClassDetail";
 import { SubmissionList } from "./pages/SubmissionList";
 import { SubmissionDetail } from "./pages/SubmissionDetail";
 import { AdminDashboard } from "./pages/AdminDashboard";
+import { Profile } from "./pages/Profile";
 
 function App() {
   return (
@@ -117,6 +118,14 @@ function App() {
             element={
               <ProtectedRoute requiredRole="admin">
                 <AdminDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <Profile />
               </ProtectedRoute>
             }
           />

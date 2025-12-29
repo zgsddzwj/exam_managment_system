@@ -48,3 +48,20 @@ class UserDetailSerializer(serializers.ModelSerializer):
         fields = ["id", "username", "email", "first_name", "last_name", "role", "created_at", "updated_at"]
         read_only_fields = ["id", "role", "created_at", "updated_at"]  # role只能通过专门的接口修改
 
+
+class PasswordChangeSerializer(serializers.Serializer):
+    """密码修改序列化器"""
+    
+    old_password = serializers.CharField(required=True, write_only=True)
+    new_password = serializers.CharField(
+        required=True,
+        write_only=True,
+        validators=[validate_password]
+    )
+    new_password2 = serializers.CharField(required=True, write_only=True)
+    
+    def validate(self, attrs):
+        if attrs["new_password"] != attrs["new_password2"]:
+            raise serializers.ValidationError({"new_password": "两次新密码输入不一致"})
+        return attrs
+
