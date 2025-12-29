@@ -60,7 +60,12 @@ def export_submissions_to_excel(class_id=None, task_id=None):
         
         import urllib.parse
         encoded_filename = urllib.parse.quote(filename.encode('utf-8'))
-        response["Content-Disposition"] = f'attachment; filename*=UTF-8\'\'{encoded_filename}'
+        # 使用两种方式确保浏览器兼容性
+        response["Content-Disposition"] = f'attachment; filename="{filename}"; filename*=UTF-8\'\'{encoded_filename}'
+        # 添加缓存控制头
+        response["Cache-Control"] = "no-cache, no-store, must-revalidate"
+        response["Pragma"] = "no-cache"
+        response["Expires"] = "0"
         
         return response
     
@@ -101,10 +106,15 @@ def export_submissions_to_excel(class_id=None, task_id=None):
     elif class_id:
         filename = f"班级_{class_id}_成绩统计.xlsx"
     
-    # 处理中文文件名编码
+    # 处理中文文件名编码 - 同时支持RFC 5987和传统方式
     import urllib.parse
     encoded_filename = urllib.parse.quote(filename.encode('utf-8'))
-    response["Content-Disposition"] = f'attachment; filename*=UTF-8\'\'{encoded_filename}'
+    # 使用两种方式确保浏览器兼容性
+    response["Content-Disposition"] = f'attachment; filename="{filename}"; filename*=UTF-8\'\'{encoded_filename}'
+    # 添加缓存控制头
+    response["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    response["Pragma"] = "no-cache"
+    response["Expires"] = "0"
     
     return response
 

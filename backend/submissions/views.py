@@ -502,6 +502,7 @@ def class_submissions(request, class_id):
 @permission_classes([IsTeacherOrAdmin])
 def export_grades(request):
     """导出成绩（Excel或CSV）"""
+    # 从查询参数获取过滤条件
     class_id = request.query_params.get("class_id")
     task_id = request.query_params.get("task_id")
     format_type = request.query_params.get("format", "excel")  # excel or csv
@@ -523,6 +524,8 @@ def export_grades(request):
         else:
             return export_submissions_to_excel(class_id=class_id, task_id=task_id)
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         from rest_framework.response import Response
         from rest_framework import status
         return Response(
