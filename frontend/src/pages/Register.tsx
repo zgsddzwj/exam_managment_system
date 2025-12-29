@@ -1,0 +1,122 @@
+import React, { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import { getErrorMessage } from "../utils/errorHandler";
+
+export const Register: React.FC = () => {
+  const [formData, setFormData] = useState({
+    username: "",
+    email: "",
+    password: "",
+    password2: "",
+    role: "student" as "admin" | "teacher" | "student",
+    first_name: "",
+    last_name: "",
+  });
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const { register } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+
+    if (formData.password !== formData.password2) {
+      setError("两次密码输入不一致");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await register(formData);
+      navigate("/dashboard");
+    } catch (err: any) {
+      setError(getErrorMessage(err, "注册失败"));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div style={{ maxWidth: "400px", margin: "50px auto", padding: "20px", width: "100%" }}>
+      <h2>注册</h2>
+      <form onSubmit={handleSubmit}>
+        <div style={{ marginBottom: "15px" }}>
+          <label>用户名：</label>
+          <input
+            type="text"
+            value={formData.username}
+            onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+            required
+            style={{ width: "100%", padding: "8px", marginTop: "5px" }}
+          />
+        </div>
+        <div style={{ marginBottom: "15px" }}>
+          <label>邮箱：</label>
+          <input
+            type="email"
+            value={formData.email}
+            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+            required
+            style={{ width: "100%", padding: "8px", marginTop: "5px" }}
+          />
+        </div>
+        <div style={{ marginBottom: "15px" }}>
+          <label>角色：</label>
+          <select
+            value={formData.role}
+            onChange={(e) =>
+              setFormData({ ...formData, role: e.target.value as "admin" | "teacher" | "student" })
+            }
+            style={{ width: "100%", padding: "8px", marginTop: "5px" }}
+          >
+            <option value="student">学生</option>
+            <option value="teacher">教师</option>
+            <option value="admin">管理员</option>
+          </select>
+        </div>
+        <div style={{ marginBottom: "15px" }}>
+          <label>密码：</label>
+          <input
+            type="password"
+            value={formData.password}
+            onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+            required
+            style={{ width: "100%", padding: "8px", marginTop: "5px" }}
+          />
+        </div>
+        <div style={{ marginBottom: "15px" }}>
+          <label>确认密码：</label>
+          <input
+            type="password"
+            value={formData.password2}
+            onChange={(e) => setFormData({ ...formData, password2: e.target.value })}
+            required
+            style={{ width: "100%", padding: "8px", marginTop: "5px" }}
+          />
+        </div>
+        {error && <div style={{ color: "red", marginBottom: "15px" }}>{error}</div>}
+        <button
+          type="submit"
+          disabled={loading}
+          style={{
+            width: "100%",
+            padding: "10px",
+            backgroundColor: "#007bff",
+            color: "white",
+            border: "none",
+            borderRadius: "4px",
+            cursor: loading ? "not-allowed" : "pointer",
+          }}
+        >
+          {loading ? "注册中..." : "注册"}
+        </button>
+      </form>
+      <p style={{ marginTop: "15px", textAlign: "center" }}>
+        已有账号？<Link to="/login">登录</Link>
+      </p>
+    </div>
+  );
+};
+

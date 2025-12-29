@@ -1,0 +1,10 @@
+Django==4.2.27
+djangorestframework==3.16.1
+djangorestframework-simplejwt==5.5.1
+psycopg2-binary==2.9.11
+django-cors-headers==4.9.0
+python-dotenv==1.2.1
+requests==2.31.0
+openpyxl==3.1.2
+pandas==2.1.4
+
