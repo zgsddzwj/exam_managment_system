@@ -55,25 +55,41 @@ export const ClassList: React.FC = () => {
 
   if (loading)
     return (
-      <div style={{ padding: "20px", textAlign: "center" }}>
-        <div style={{ fontSize: "18px", color: "#6c757d" }}>加载中...</div>
+      <div style={{ padding: "40px", textAlign: "center" }}>
+        <div style={{ fontSize: "var(--font-size-lg, 18px)", color: "var(--text-secondary, #6b7280)" }}>加载中...</div>
       </div>
     );
 
   return (
-    <div style={{ padding: "20px" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "20px" }}>
-        <h2>班级管理</h2>
+    <div style={{ padding: "24px", maxWidth: "1400px", margin: "0 auto" }}>
+      <div style={{
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        marginBottom: "24px",
+        paddingBottom: "16px",
+        borderBottom: "2px solid var(--border-light, #f3f4f6)",
+      }}>
+        <h2 style={{
+          margin: 0,
+          color: "var(--text-primary, #1f2937)",
+          fontSize: "var(--font-size-2xl, 24px)",
+        }}>班级管理</h2>
         <button
           onClick={() => setShowCreateForm(!showCreateForm)}
           style={{
             padding: "10px 20px",
-            backgroundColor: "#007bff",
+            backgroundColor: "var(--primary-color, #1e40af)",
             color: "white",
             border: "none",
-            borderRadius: "4px",
+            borderRadius: "var(--radius-md, 6px)",
             cursor: "pointer",
+            fontSize: "var(--font-size-base, 16px)",
+            fontWeight: 500,
+            transition: "background-color 0.2s ease",
           }}
+          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "var(--primary-hover, #1e3a8a)"}
+          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "var(--primary-color, #1e40af)"}
         >
           {showCreateForm ? "取消" : "创建班级"}
         </button>
@@ -83,40 +99,99 @@ export const ClassList: React.FC = () => {
         <form
           onSubmit={handleCreate}
           style={{
-            marginBottom: "20px",
-            padding: "20px",
-            border: "1px solid #ddd",
-            borderRadius: "4px",
+            marginBottom: "24px",
+            padding: "24px",
+            border: "1px solid var(--border-color, #e5e7eb)",
+            borderRadius: "var(--radius-lg, 8px)",
+            backgroundColor: "var(--bg-primary, #ffffff)",
+            boxShadow: "var(--shadow-sm, 0 1px 2px 0 rgba(0, 0, 0, 0.05))",
           }}
         >
-          <div style={{ marginBottom: "15px" }}>
-            <label>班级名称：</label>
+          <h3 style={{
+            marginTop: 0,
+            marginBottom: "20px",
+            color: "var(--text-primary, #1f2937)",
+            fontSize: "var(--font-size-xl, 20px)",
+          }}>创建新班级</h3>
+          <div style={{ marginBottom: "20px" }}>
+            <label style={{
+              display: "block",
+              fontWeight: 500,
+              marginBottom: "8px",
+              color: "var(--text-primary, #1f2937)",
+            }}>班级名称</label>
             <input
               type="text"
               value={newClass.name}
               onChange={(e) => setNewClass({ ...newClass, name: e.target.value })}
               required
-              style={{ width: "100%", padding: "8px", marginTop: "5px" }}
+              placeholder="请输入班级名称"
+              style={{
+                width: "100%",
+                padding: "12px",
+                marginTop: "4px",
+                fontSize: "var(--font-size-base, 16px)",
+                border: "1px solid var(--border-color, #e5e7eb)",
+                borderRadius: "var(--radius-md, 6px)",
+                transition: "border-color 0.2s ease, box-shadow 0.2s ease",
+              }}
+              onFocus={(e) => {
+                e.currentTarget.style.borderColor = "var(--primary-color, #1e40af)";
+                e.currentTarget.style.boxShadow = "0 0 0 3px var(--primary-lighter, #dbeafe)";
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.borderColor = "var(--border-color, #e5e7eb)";
+                e.currentTarget.style.boxShadow = "none";
+              }}
             />
           </div>
-          <div style={{ marginBottom: "15px" }}>
-            <label>描述：</label>
+          <div style={{ marginBottom: "24px" }}>
+            <label style={{
+              display: "block",
+              fontWeight: 500,
+              marginBottom: "8px",
+              color: "var(--text-primary, #1f2937)",
+            }}>描述</label>
             <textarea
               value={newClass.description}
               onChange={(e) => setNewClass({ ...newClass, description: e.target.value })}
-              style={{ width: "100%", padding: "8px", marginTop: "5px", minHeight: "80px" }}
+              placeholder="请输入班级描述（可选）"
+              style={{
+                width: "100%",
+                padding: "12px",
+                marginTop: "4px",
+                minHeight: "100px",
+                fontSize: "var(--font-size-base, 16px)",
+                border: "1px solid var(--border-color, #e5e7eb)",
+                borderRadius: "var(--radius-md, 6px)",
+                fontFamily: "inherit",
+                transition: "border-color 0.2s ease, box-shadow 0.2s ease",
+              }}
+              onFocus={(e) => {
+                e.currentTarget.style.borderColor = "var(--primary-color, #1e40af)";
+                e.currentTarget.style.boxShadow = "0 0 0 3px var(--primary-lighter, #dbeafe)";
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.borderColor = "var(--border-color, #e5e7eb)";
+                e.currentTarget.style.boxShadow = "none";
+              }}
             />
           </div>
           <button
             type="submit"
             style={{
-              padding: "10px 20px",
-              backgroundColor: "#28a745",
+              padding: "12px 24px",
+              backgroundColor: "var(--success-color, #059669)",
               color: "white",
               border: "none",
-              borderRadius: "4px",
+              borderRadius: "var(--radius-md, 6px)",
               cursor: "pointer",
+              fontSize: "var(--font-size-base, 16px)",
+              fontWeight: 500,
+              transition: "background-color 0.2s ease",
             }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "var(--success-hover, #047857)"}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "var(--success-color, #059669)"}
           >
             创建
           </button>
@@ -127,29 +202,41 @@ export const ClassList: React.FC = () => {
         {classes.length === 0 ? (
           <div
             style={{
-              padding: "40px",
+              padding: "60px 40px",
               textAlign: "center",
-              border: "2px dashed #ddd",
-              borderRadius: "8px",
-              backgroundColor: "#f8f9fa",
+              border: "2px dashed var(--border-color, #e5e7eb)",
+              borderRadius: "var(--radius-lg, 8px)",
+              backgroundColor: "var(--bg-primary, #ffffff)",
             }}
           >
-            <h3 style={{ color: "#6c757d", marginBottom: "10px" }}>暂无班级</h3>
-            <p style={{ color: "#6c757d", marginBottom: "20px" }}>
+            <h3 style={{
+              color: "var(--text-secondary, #6b7280)",
+              marginBottom: "12px",
+              fontSize: "var(--font-size-xl, 20px)",
+            }}>暂无班级</h3>
+            <p style={{
+              color: "var(--text-secondary, #6b7280)",
+              marginBottom: "24px",
+              fontSize: "var(--font-size-base, 16px)",
+            }}>
               点击"创建班级"按钮开始创建您的第一个班级
             </p>
             {!showCreateForm && (
               <button
                 onClick={() => setShowCreateForm(true)}
                 style={{
-                  padding: "10px 20px",
-                  backgroundColor: "#007bff",
+                  padding: "12px 24px",
+                  backgroundColor: "var(--primary-color, #1e40af)",
                   color: "white",
                   border: "none",
-                  borderRadius: "4px",
+                  borderRadius: "var(--radius-md, 6px)",
                   cursor: "pointer",
-                  fontSize: "16px",
+                  fontSize: "var(--font-size-base, 16px)",
+                  fontWeight: 500,
+                  transition: "background-color 0.2s ease",
                 }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "var(--primary-hover, #1e3a8a)"}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "var(--primary-color, #1e40af)"}
               >
                 立即创建班级
               </button>
@@ -160,44 +247,72 @@ export const ClassList: React.FC = () => {
           <div
             key={cls.id}
             style={{
-              border: "1px solid #ddd",
-              borderRadius: "4px",
-              padding: "15px",
-              marginBottom: "15px",
+              border: "1px solid var(--border-color, #e5e7eb)",
+              borderRadius: "var(--radius-lg, 8px)",
+              padding: "20px",
+              marginBottom: "16px",
+              backgroundColor: "var(--bg-primary, #ffffff)",
+              boxShadow: "var(--shadow-sm, 0 1px 2px 0 rgba(0, 0, 0, 0.05))",
+              transition: "box-shadow 0.2s ease",
             }}
+            onMouseEnter={(e) => e.currentTarget.style.boxShadow = "var(--shadow-md, 0 4px 6px -1px rgba(0, 0, 0, 0.1))"}
+            onMouseLeave={(e) => e.currentTarget.style.boxShadow = "var(--shadow-sm, 0 1px 2px 0 rgba(0, 0, 0, 0.05))"}
           >
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
               <div style={{ flex: 1 }}>
-                <h3 style={{ margin: "0 0 10px 0", fontSize: "20px" }}>
+                <h3 style={{
+                  margin: "0 0 12px 0",
+                  fontSize: "var(--font-size-xl, 20px)",
+                  color: "var(--text-primary, #1f2937)",
+                }}>
                   <Link
                     to={`/classes/${cls.id}`}
-                    style={{ textDecoration: "none", color: "#007bff" }}
+                    style={{
+                      textDecoration: "none",
+                      color: "var(--primary-color, #1e40af)",
+                      fontWeight: 600,
+                    }}
                   >
                     {cls.name}
                   </Link>
                 </h3>
-                <p style={{ color: "#6c757d", margin: "5px 0" }}>
+                <p style={{
+                  color: "var(--text-secondary, #6b7280)",
+                  margin: "8px 0",
+                  lineHeight: "var(--line-height-relaxed, 1.75)",
+                }}>
                   {cls.description || "无描述"}
                 </p>
-                <div style={{ display: "flex", gap: "20px", marginTop: "10px", fontSize: "14px" }}>
-                  <span>
-                    <strong>学生数:</strong> {cls.student_count || 0}
+                <div style={{
+                  display: "flex",
+                  gap: "24px",
+                  marginTop: "12px",
+                  fontSize: "var(--font-size-sm, 14px)",
+                  flexWrap: "wrap",
+                }}>
+                  <span style={{ color: "var(--text-secondary, #6b7280)" }}>
+                    <strong style={{ color: "var(--text-primary, #1f2937)" }}>学生数:</strong> {cls.student_count || 0}
                   </span>
-                  <span>
-                    <strong>创建时间:</strong> {new Date(cls.created_at).toLocaleDateString()}
+                  <span style={{ color: "var(--text-secondary, #6b7280)" }}>
+                    <strong style={{ color: "var(--text-primary, #1f2937)" }}>创建时间:</strong> {new Date(cls.created_at).toLocaleDateString()}
                   </span>
                 </div>
               </div>
               <Link
                 to={`/classes/${cls.id}`}
                 style={{
-                  padding: "8px 16px",
-                  backgroundColor: "#007bff",
+                  padding: "10px 20px",
+                  backgroundColor: "var(--primary-color, #1e40af)",
                   color: "white",
                   textDecoration: "none",
-                  borderRadius: "4px",
-                  fontSize: "14px",
+                  borderRadius: "var(--radius-md, 6px)",
+                  fontSize: "var(--font-size-sm, 14px)",
+                  fontWeight: 500,
+                  transition: "background-color 0.2s ease",
+                  whiteSpace: "nowrap",
                 }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "var(--primary-hover, #1e3a8a)"}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "var(--primary-color, #1e40af)"}
               >
                 查看详情
               </Link>
@@ -205,20 +320,24 @@ export const ClassList: React.FC = () => {
             {cls.active_invitation_code && (
               <div
                 style={{
-                  marginTop: "15px",
-                  padding: "12px",
-                  backgroundColor: "#e7f3ff",
-                  borderRadius: "4px",
-                  border: "1px solid #b3d9ff",
+                  marginTop: "16px",
+                  padding: "16px",
+                  backgroundColor: "var(--primary-lighter, #dbeafe)",
+                  borderRadius: "var(--radius-md, 6px)",
+                  border: "1px solid var(--primary-light, #3b82f6)",
                 }}
               >
-                <p style={{ margin: "0 0 8px 0" }}>
+                <p style={{
+                  margin: "0 0 10px 0",
+                  fontSize: "var(--font-size-sm, 14px)",
+                  color: "var(--text-primary, #1f2937)",
+                }}>
                   <strong>邀请码:</strong>{" "}
                   <span
                     style={{
-                      fontSize: "20px",
+                      fontSize: "var(--font-size-xl, 20px)",
                       fontWeight: "bold",
-                      color: "#007bff",
+                      color: "var(--primary-color, #1e40af)",
                       fontFamily: "monospace",
                       letterSpacing: "2px",
                     }}
@@ -226,40 +345,51 @@ export const ClassList: React.FC = () => {
                     {cls.active_invitation_code.code}
                   </span>
                 </p>
-                <p style={{ margin: "0", fontSize: "12px", color: "#6c757d" }}>
+                <p style={{
+                  margin: "0 0 12px 0",
+                  fontSize: "var(--font-size-xs, 12px)",
+                  color: "var(--text-secondary, #6b7280)",
+                }}>
                   使用次数: {cls.active_invitation_code.current_uses} /{" "}
                   {cls.active_invitation_code.max_uses || "∞"}
                 </p>
                 <button
                   onClick={() => handleCreateInvitation(cls.id)}
                   style={{
-                    padding: "6px 12px",
-                    backgroundColor: "#ffc107",
-                    color: "black",
+                    padding: "8px 16px",
+                    backgroundColor: "var(--warning-color, #d97706)",
+                    color: "white",
                     border: "none",
-                    borderRadius: "4px",
+                    borderRadius: "var(--radius-md, 6px)",
                     cursor: "pointer",
-                    marginTop: "8px",
-                    fontSize: "14px",
+                    fontSize: "var(--font-size-sm, 14px)",
+                    fontWeight: 500,
+                    transition: "background-color 0.2s ease",
                   }}
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "var(--warning-hover, #b45309)"}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "var(--warning-color, #d97706)"}
                 >
                   重新生成邀请码
                 </button>
               </div>
             )}
             {!cls.active_invitation_code && (
-              <div style={{ marginTop: "15px" }}>
+              <div style={{ marginTop: "16px" }}>
                 <button
                   onClick={() => handleCreateInvitation(cls.id)}
                   style={{
-                    padding: "8px 16px",
-                    backgroundColor: "#007bff",
+                    padding: "10px 20px",
+                    backgroundColor: "var(--primary-color, #1e40af)",
                     color: "white",
                     border: "none",
-                    borderRadius: "4px",
+                    borderRadius: "var(--radius-md, 6px)",
                     cursor: "pointer",
-                    fontSize: "14px",
+                    fontSize: "var(--font-size-sm, 14px)",
+                    fontWeight: 500,
+                    transition: "background-color 0.2s ease",
                   }}
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "var(--primary-hover, #1e3a8a)"}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "var(--primary-color, #1e40af)"}
                 >
                   生成邀请码
                 </button>

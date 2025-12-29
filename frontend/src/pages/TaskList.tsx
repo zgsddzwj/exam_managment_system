@@ -119,19 +119,35 @@ export const TaskList: React.FC = () => {
     );
 
   return (
-    <div style={{ padding: "20px" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "20px" }}>
-        <h2>任务管理</h2>
+    <div style={{ padding: "24px", maxWidth: "1400px", margin: "0 auto" }}>
+      <div style={{
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        marginBottom: "24px",
+        paddingBottom: "16px",
+        borderBottom: "2px solid var(--border-light, #f3f4f6)",
+      }}>
+        <h2 style={{
+          margin: 0,
+          color: "var(--text-primary, #1f2937)",
+          fontSize: "var(--font-size-2xl, 24px)",
+        }}>任务管理</h2>
         <button
           onClick={() => setShowCreateForm(!showCreateForm)}
           style={{
             padding: "10px 20px",
-            backgroundColor: "#007bff",
+            backgroundColor: "var(--primary-color, #1e40af)",
             color: "white",
             border: "none",
-            borderRadius: "4px",
+            borderRadius: "var(--radius-md, 6px)",
             cursor: "pointer",
+            fontSize: "var(--font-size-base, 16px)",
+            fontWeight: 500,
+            transition: "background-color 0.2s ease",
           }}
+          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "var(--primary-hover, #1e3a8a)"}
+          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "var(--primary-color, #1e40af)"}
         >
           {showCreateForm ? "取消" : "创建任务"}
         </button>
@@ -141,24 +157,47 @@ export const TaskList: React.FC = () => {
         <form
           onSubmit={handleCreate}
           style={{
-            marginBottom: "20px",
-            padding: "20px",
-            border: "1px solid #ddd",
-            borderRadius: "8px",
-            backgroundColor: "#f9f9f9",
-            boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+            marginBottom: "24px",
+            padding: "24px",
+            border: "1px solid var(--border-color, #e5e7eb)",
+            borderRadius: "var(--radius-lg, 8px)",
+            backgroundColor: "var(--bg-primary, #ffffff)",
+            boxShadow: "var(--shadow-sm, 0 1px 2px 0 rgba(0, 0, 0, 0.05))",
           }}
         >
-          <h3 style={{ marginTop: "0", marginBottom: "20px" }}>创建新任务</h3>
-          <div style={{ marginBottom: "15px" }}>
-            <label style={{ fontWeight: "bold", display: "block", marginBottom: "5px" }}>
-              所属班级：<span style={{ color: "red" }}>*</span>
+          <h3 style={{
+            marginTop: "0",
+            marginBottom: "24px",
+            color: "var(--text-primary, #1f2937)",
+            fontSize: "var(--font-size-xl, 20px)",
+          }}>创建新任务</h3>
+          <div style={{ marginBottom: "20px" }}>
+            <label style={{
+              fontWeight: 500,
+              display: "block",
+              marginBottom: "8px",
+              color: "var(--text-primary, #1f2937)",
+            }}>
+              所属班级<span style={{ color: "var(--danger-color, #dc2626)", marginLeft: "4px" }}>*</span>
             </label>
             {classes.length === 0 ? (
-              <div style={{ padding: "10px", backgroundColor: "#fff3cd", borderRadius: "4px", border: "1px solid #ffc107" }}>
-                <p style={{ margin: "0", color: "#856404" }}>
+              <div style={{
+                padding: "12px",
+                backgroundColor: "var(--warning-light, #fef3c7)",
+                borderRadius: "var(--radius-md, 6px)",
+                border: "1px solid var(--warning-color, #d97706)",
+              }}>
+                <p style={{
+                  margin: "0",
+                  color: "var(--warning-hover, #b45309)",
+                  fontSize: "var(--font-size-sm, 14px)",
+                }}>
                   您还没有创建班级，请先{" "}
-                  <Link to="/classes" style={{ color: "#007bff", textDecoration: "underline" }}>
+                  <Link to="/classes" style={{
+                    color: "var(--primary-color, #1e40af)",
+                    textDecoration: "underline",
+                    fontWeight: 500,
+                  }}>
                     创建班级
                   </Link>
                 </p>
@@ -170,11 +209,20 @@ export const TaskList: React.FC = () => {
                 required
                 style={{
                   width: "100%",
-                  padding: "10px",
-                  marginTop: "5px",
-                  border: "1px solid #ddd",
-                  borderRadius: "4px",
-                  fontSize: "14px",
+                  padding: "12px",
+                  marginTop: "4px",
+                  border: "1px solid var(--border-color, #e5e7eb)",
+                  borderRadius: "var(--radius-md, 6px)",
+                  fontSize: "var(--font-size-base, 16px)",
+                  transition: "border-color 0.2s ease, box-shadow 0.2s ease",
+                }}
+                onFocus={(e) => {
+                  e.currentTarget.style.borderColor = "var(--primary-color, #1e40af)";
+                  e.currentTarget.style.boxShadow = "0 0 0 3px var(--primary-lighter, #dbeafe)";
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.borderColor = "var(--border-color, #e5e7eb)";
+                  e.currentTarget.style.boxShadow = "none";
                 }}
               >
                 <option value="">请选择班级</option>
@@ -186,9 +234,14 @@ export const TaskList: React.FC = () => {
               </select>
             )}
           </div>
-          <div style={{ marginBottom: "15px" }}>
-            <label style={{ fontWeight: "bold", display: "block", marginBottom: "5px" }}>
-              任务标题：<span style={{ color: "red" }}>*</span>
+          <div style={{ marginBottom: "20px" }}>
+            <label style={{
+              fontWeight: 500,
+              display: "block",
+              marginBottom: "8px",
+              color: "var(--text-primary, #1f2937)",
+            }}>
+              任务标题<span style={{ color: "var(--danger-color, #dc2626)", marginLeft: "4px" }}>*</span>
             </label>
             <input
               type="text"
@@ -198,17 +251,31 @@ export const TaskList: React.FC = () => {
               placeholder="例如：计算两数之和"
               style={{
                 width: "100%",
-                padding: "10px",
-                marginTop: "5px",
-                border: "1px solid #ddd",
-                borderRadius: "4px",
-                fontSize: "14px",
+                padding: "12px",
+                marginTop: "4px",
+                border: "1px solid var(--border-color, #e5e7eb)",
+                borderRadius: "var(--radius-md, 6px)",
+                fontSize: "var(--font-size-base, 16px)",
+                transition: "border-color 0.2s ease, box-shadow 0.2s ease",
+              }}
+              onFocus={(e) => {
+                e.currentTarget.style.borderColor = "var(--primary-color, #1e40af)";
+                e.currentTarget.style.boxShadow = "0 0 0 3px var(--primary-lighter, #dbeafe)";
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.borderColor = "var(--border-color, #e5e7eb)";
+                e.currentTarget.style.boxShadow = "none";
               }}
             />
           </div>
-          <div style={{ marginBottom: "15px" }}>
-            <label style={{ fontWeight: "bold", display: "block", marginBottom: "5px" }}>
-              任务描述：<span style={{ color: "red" }}>*</span>
+          <div style={{ marginBottom: "20px" }}>
+            <label style={{
+              fontWeight: 500,
+              display: "block",
+              marginBottom: "8px",
+              color: "var(--text-primary, #1f2937)",
+            }}>
+              任务描述<span style={{ color: "var(--danger-color, #dc2626)", marginLeft: "4px" }}>*</span>
             </label>
             <textarea
               value={newTask.description}
@@ -218,18 +285,32 @@ export const TaskList: React.FC = () => {
               placeholder="详细描述任务要求，包括输入输出格式、示例等..."
               style={{
                 width: "100%",
-                padding: "10px",
-                marginTop: "5px",
-                border: "1px solid #ddd",
-                borderRadius: "4px",
-                fontSize: "14px",
+                padding: "12px",
+                marginTop: "4px",
+                border: "1px solid var(--border-color, #e5e7eb)",
+                borderRadius: "var(--radius-md, 6px)",
+                fontSize: "var(--font-size-base, 16px)",
                 fontFamily: "inherit",
+                transition: "border-color 0.2s ease, box-shadow 0.2s ease",
+              }}
+              onFocus={(e) => {
+                e.currentTarget.style.borderColor = "var(--primary-color, #1e40af)";
+                e.currentTarget.style.boxShadow = "0 0 0 3px var(--primary-lighter, #dbeafe)";
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.borderColor = "var(--border-color, #e5e7eb)";
+                e.currentTarget.style.boxShadow = "none";
               }}
             />
           </div>
-          <div style={{ marginBottom: "15px" }}>
-            <label style={{ fontWeight: "bold", display: "block", marginBottom: "5px" }}>
-              编程语言：<span style={{ color: "red" }}>*</span>
+          <div style={{ marginBottom: "20px" }}>
+            <label style={{
+              fontWeight: 500,
+              display: "block",
+              marginBottom: "8px",
+              color: "var(--text-primary, #1f2937)",
+            }}>
+              编程语言<span style={{ color: "var(--danger-color, #dc2626)", marginLeft: "4px" }}>*</span>
             </label>
             <select
               value={newTask.language}
@@ -238,20 +319,34 @@ export const TaskList: React.FC = () => {
               }
               style={{
                 width: "100%",
-                padding: "10px",
-                marginTop: "5px",
-                border: "1px solid #ddd",
-                borderRadius: "4px",
-                fontSize: "14px",
+                padding: "12px",
+                marginTop: "4px",
+                border: "1px solid var(--border-color, #e5e7eb)",
+                borderRadius: "var(--radius-md, 6px)",
+                fontSize: "var(--font-size-base, 16px)",
+                transition: "border-color 0.2s ease, box-shadow 0.2s ease",
+              }}
+              onFocus={(e) => {
+                e.currentTarget.style.borderColor = "var(--primary-color, #1e40af)";
+                e.currentTarget.style.boxShadow = "0 0 0 3px var(--primary-lighter, #dbeafe)";
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.borderColor = "var(--border-color, #e5e7eb)";
+                e.currentTarget.style.boxShadow = "none";
               }}
             >
               <option value="python">Python</option>
               <option value="java">Java</option>
             </select>
           </div>
-          <div style={{ marginBottom: "15px" }}>
-            <label style={{ fontWeight: "bold", display: "block", marginBottom: "5px" }}>
-              截止时间（可选）：
+          <div style={{ marginBottom: "20px" }}>
+            <label style={{
+              fontWeight: 500,
+              display: "block",
+              marginBottom: "8px",
+              color: "var(--text-primary, #1f2937)",
+            }}>
+              截止时间（可选）
             </label>
             <input
               type="datetime-local"
@@ -259,11 +354,20 @@ export const TaskList: React.FC = () => {
               onChange={(e) => setNewTask({ ...newTask, deadline: e.target.value })}
               style={{
                 width: "100%",
-                padding: "10px",
-                marginTop: "5px",
-                border: "1px solid #ddd",
-                borderRadius: "4px",
-                fontSize: "14px",
+                padding: "12px",
+                marginTop: "4px",
+                border: "1px solid var(--border-color, #e5e7eb)",
+                borderRadius: "var(--radius-md, 6px)",
+                fontSize: "var(--font-size-base, 16px)",
+                transition: "border-color 0.2s ease, box-shadow 0.2s ease",
+              }}
+              onFocus={(e) => {
+                e.currentTarget.style.borderColor = "var(--primary-color, #1e40af)";
+                e.currentTarget.style.boxShadow = "0 0 0 3px var(--primary-lighter, #dbeafe)";
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.borderColor = "var(--border-color, #e5e7eb)";
+                e.currentTarget.style.boxShadow = "none";
               }}
             />
           </div>
@@ -420,19 +524,30 @@ export const TaskList: React.FC = () => {
             ))}
           </div>
 
-          <div style={{ display: "flex", gap: "10px", marginTop: "20px" }}>
+          <div style={{ display: "flex", gap: "12px", marginTop: "24px" }}>
             <button
               type="submit"
               disabled={classes.length === 0}
               style={{
                 padding: "12px 24px",
-                backgroundColor: classes.length === 0 ? "#6c757d" : "#28a745",
+                backgroundColor: classes.length === 0 ? "var(--text-muted, #9ca3af)" : "var(--success-color, #059669)",
                 color: "white",
                 border: "none",
-                borderRadius: "4px",
+                borderRadius: "var(--radius-md, 6px)",
                 cursor: classes.length === 0 ? "not-allowed" : "pointer",
-                fontSize: "16px",
-                fontWeight: "bold",
+                fontSize: "var(--font-size-base, 16px)",
+                fontWeight: 500,
+                transition: "background-color 0.2s ease",
+              }}
+              onMouseEnter={(e) => {
+                if (classes.length > 0) {
+                  e.currentTarget.style.backgroundColor = "var(--success-hover, #047857)";
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (classes.length > 0) {
+                  e.currentTarget.style.backgroundColor = "var(--success-color, #059669)";
+                }
               }}
             >
               创建任务
@@ -449,13 +564,17 @@ export const TaskList: React.FC = () => {
               }}
               style={{
                 padding: "12px 24px",
-                backgroundColor: "#6c757d",
-                color: "white",
-                border: "none",
-                borderRadius: "4px",
+                backgroundColor: "var(--bg-tertiary, #f3f4f6)",
+                color: "var(--text-primary, #1f2937)",
+                border: "1px solid var(--border-color, #e5e7eb)",
+                borderRadius: "var(--radius-md, 6px)",
                 cursor: "pointer",
-                fontSize: "16px",
+                fontSize: "var(--font-size-base, 16px)",
+                fontWeight: 500,
+                transition: "background-color 0.2s ease",
               }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "var(--border-color, #e5e7eb)"}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "var(--bg-tertiary, #f3f4f6)"}
             >
               取消
             </button>
@@ -464,19 +583,31 @@ export const TaskList: React.FC = () => {
       )}
 
       <div>
-        <h3>任务列表</h3>
+        <h3 style={{
+          marginBottom: "20px",
+          color: "var(--text-primary, #1f2937)",
+          fontSize: "var(--font-size-xl, 20px)",
+        }}>任务列表</h3>
         {tasks.length === 0 ? (
           <div
             style={{
-              padding: "40px",
+              padding: "60px 40px",
               textAlign: "center",
-              border: "2px dashed #ddd",
-              borderRadius: "8px",
-              backgroundColor: "#f8f9fa",
+              border: "2px dashed var(--border-color, #e5e7eb)",
+              borderRadius: "var(--radius-lg, 8px)",
+              backgroundColor: "var(--bg-primary, #ffffff)",
             }}
           >
-            <h3 style={{ color: "#6c757d", marginBottom: "10px" }}>暂无任务</h3>
-            <p style={{ color: "#6c757d", marginBottom: "20px" }}>
+            <h3 style={{
+              color: "var(--text-secondary, #6b7280)",
+              marginBottom: "12px",
+              fontSize: "var(--font-size-xl, 20px)",
+            }}>暂无任务</h3>
+            <p style={{
+              color: "var(--text-secondary, #6b7280)",
+              marginBottom: "24px",
+              fontSize: "var(--font-size-base, 16px)",
+            }}>
               {classes.length === 0
                 ? "请先创建班级，然后才能创建任务"
                 : '点击"创建任务"按钮开始创建您的第一个任务'}
@@ -485,14 +616,18 @@ export const TaskList: React.FC = () => {
               <button
                 onClick={() => setShowCreateForm(true)}
                 style={{
-                  padding: "10px 20px",
-                  backgroundColor: "#007bff",
+                  padding: "12px 24px",
+                  backgroundColor: "var(--primary-color, #1e40af)",
                   color: "white",
                   border: "none",
-                  borderRadius: "4px",
+                  borderRadius: "var(--radius-md, 6px)",
                   cursor: "pointer",
-                  fontSize: "16px",
+                  fontSize: "var(--font-size-base, 16px)",
+                  fontWeight: 500,
+                  transition: "background-color 0.2s ease",
                 }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "var(--primary-hover, #1e3a8a)"}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "var(--primary-color, #1e40af)"}
               >
                 立即创建任务
               </button>
@@ -501,14 +636,18 @@ export const TaskList: React.FC = () => {
               <Link
                 to="/classes"
                 style={{
-                  padding: "10px 20px",
-                  backgroundColor: "#28a745",
+                  padding: "12px 24px",
+                  backgroundColor: "var(--success-color, #059669)",
                   color: "white",
                   textDecoration: "none",
-                  borderRadius: "4px",
-                  fontSize: "16px",
+                  borderRadius: "var(--radius-md, 6px)",
+                  fontSize: "var(--font-size-base, 16px)",
                   display: "inline-block",
+                  fontWeight: 500,
+                  transition: "background-color 0.2s ease",
                 }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "var(--success-hover, #047857)"}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "var(--success-color, #059669)"}
               >
                 先去创建班级
               </Link>
@@ -520,23 +659,40 @@ export const TaskList: React.FC = () => {
               <div
                 key={task.id}
                 style={{
-                  border: "1px solid #ddd",
-                  borderRadius: "4px",
-                  padding: "15px",
-                  marginBottom: "15px",
+                  border: "1px solid var(--border-color, #e5e7eb)",
+                  borderRadius: "var(--radius-lg, 8px)",
+                  padding: "20px",
+                  marginBottom: "16px",
+                  backgroundColor: "var(--bg-primary, #ffffff)",
+                  boxShadow: "var(--shadow-sm, 0 1px 2px 0 rgba(0, 0, 0, 0.05))",
+                  transition: "box-shadow 0.2s ease",
                 }}
+                onMouseEnter={(e) => e.currentTarget.style.boxShadow = "var(--shadow-md, 0 4px 6px -1px rgba(0, 0, 0, 0.1))"}
+                onMouseLeave={(e) => e.currentTarget.style.boxShadow = "var(--shadow-sm, 0 1px 2px 0 rgba(0, 0, 0, 0.05))"}
               >
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
                   <div style={{ flex: 1 }}>
-                    <h4 style={{ margin: "0 0 10px 0", fontSize: "18px" }}>
+                    <h4 style={{
+                      margin: "0 0 12px 0",
+                      fontSize: "var(--font-size-lg, 18px)",
+                      color: "var(--text-primary, #1f2937)",
+                    }}>
                       <Link
                         to={`/tasks/${task.id}`}
-                        style={{ textDecoration: "none", color: "#007bff" }}
+                        style={{
+                          textDecoration: "none",
+                          color: "var(--primary-color, #1e40af)",
+                          fontWeight: 600,
+                        }}
                       >
                         {task.title}
                       </Link>
                     </h4>
-                    <p style={{ color: "#6c757d", margin: "5px 0", lineHeight: "1.5" }}>
+                    <p style={{
+                      color: "var(--text-secondary, #6b7280)",
+                      margin: "8px 0",
+                      lineHeight: "var(--line-height-relaxed, 1.75)",
+                    }}>
                       {task.description.length > 150
                         ? task.description.substring(0, 150) + "..."
                         : task.description}
@@ -544,49 +700,56 @@ export const TaskList: React.FC = () => {
                     <div
                       style={{
                         display: "flex",
-                        gap: "20px",
-                        marginTop: "15px",
-                        fontSize: "14px",
+                        gap: "24px",
+                        marginTop: "16px",
+                        fontSize: "var(--font-size-sm, 14px)",
                         flexWrap: "wrap",
                       }}
                     >
-                      <span>
-                        <strong>班级:</strong> {task.class_name}
+                      <span style={{ color: "var(--text-secondary, #6b7280)" }}>
+                        <strong style={{ color: "var(--text-primary, #1f2937)" }}>班级:</strong> {task.class_name}
                       </span>
-                      <span>
-                        <strong>语言:</strong>{" "}
+                      <span style={{ color: "var(--text-secondary, #6b7280)" }}>
+                        <strong style={{ color: "var(--text-primary, #1f2937)" }}>语言:</strong>{" "}
                         <span
                           style={{
-                            padding: "2px 8px",
-                            backgroundColor: task.language === "java" ? "#f8d7da" : "#d4edda",
-                            borderRadius: "4px",
+                            padding: "4px 8px",
+                            backgroundColor: task.language === "java" ? "var(--danger-light, #fee2e2)" : "var(--success-light, #d1fae5)",
+                            color: task.language === "java" ? "var(--danger-color, #dc2626)" : "var(--success-color, #059669)",
+                            borderRadius: "var(--radius-sm, 4px)",
+                            fontSize: "var(--font-size-xs, 12px)",
+                            fontWeight: 500,
                           }}
                         >
                           {task.language === "java" ? "Java" : "Python"}
                         </span>
                       </span>
-                      <span>
-                        <strong>测试用例:</strong> {task.test_case_count || 0}
+                      <span style={{ color: "var(--text-secondary, #6b7280)" }}>
+                        <strong style={{ color: "var(--text-primary, #1f2937)" }}>测试用例:</strong> {task.test_case_count || 0}
                       </span>
                       {task.deadline && (
-                        <span>
-                          <strong>截止:</strong> {new Date(task.deadline).toLocaleString()}
+                        <span style={{ color: "var(--text-secondary, #6b7280)" }}>
+                          <strong style={{ color: "var(--text-primary, #1f2937)" }}>截止:</strong> {new Date(task.deadline).toLocaleString()}
                         </span>
                       )}
                     </div>
                   </div>
                 </div>
-                <div style={{ marginTop: "10px" }}>
+                <div style={{ marginTop: "16px", display: "flex", gap: "12px", flexWrap: "wrap" }}>
                   <Link
                     to={`/submissions/classes/${task.class_obj}?task_id=${task.id}`}
                     style={{
-                      padding: "5px 10px",
-                      backgroundColor: "#007bff",
+                      padding: "8px 16px",
+                      backgroundColor: "var(--primary-color, #1e40af)",
                       color: "white",
                       textDecoration: "none",
-                      borderRadius: "4px",
-                      marginRight: "10px",
+                      borderRadius: "var(--radius-md, 6px)",
+                      fontSize: "var(--font-size-sm, 14px)",
+                      fontWeight: 500,
+                      transition: "background-color 0.2s ease",
                     }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "var(--primary-hover, #1e3a8a)"}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "var(--primary-color, #1e40af)"}
                   >
                     查看提交
                   </Link>
@@ -618,13 +781,18 @@ export const TaskList: React.FC = () => {
                       }
                     }}
                     style={{
-                      padding: "5px 10px",
-                      backgroundColor: "#28a745",
+                      padding: "8px 16px",
+                      backgroundColor: "var(--success-color, #059669)",
                       color: "white",
                       border: "none",
-                      borderRadius: "4px",
+                      borderRadius: "var(--radius-md, 6px)",
                       cursor: "pointer",
+                      fontSize: "var(--font-size-sm, 14px)",
+                      fontWeight: 500,
+                      transition: "background-color 0.2s ease",
                     }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "var(--success-hover, #047857)"}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "var(--success-color, #059669)"}
                   >
                     导出成绩
                   </button>
