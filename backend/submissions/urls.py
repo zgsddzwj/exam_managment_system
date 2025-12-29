@@ -6,6 +6,7 @@ from .views import (
     submission_detail,
     class_submissions,
     export_grades,
+    ExportGradesView,
     get_code_analysis,
 )
 
