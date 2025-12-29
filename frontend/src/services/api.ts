@@ -246,7 +246,7 @@ class ApiClient {
   }
 
   async exportGrades(classId?: number, taskId?: number, format: "excel" | "csv" = "excel") {
-    const params: any = { format };
+    const params: any = { format_type: format };  // 使用format_type避免与DRF的format参数冲突
     if (classId) params.class_id = classId;
     if (taskId) params.task_id = taskId;
     const response = await this.client.get("/submissions/export/", {

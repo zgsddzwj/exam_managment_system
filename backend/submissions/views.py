@@ -1,6 +1,10 @@
 from rest_framework import status, generics, permissions
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
+from rest_framework.views import APIView
+from django.views import View
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
 from django.db.models import Q
 from .models import Submission, TestResult, TestAttempt
@@ -503,9 +507,11 @@ def class_submissions(request, class_id):
 def export_grades(request):
     """导出成绩（Excel或CSV）"""
     # 从查询参数获取过滤条件
+    # 注意：使用query_params而不是GET，因为DRF的Request对象
     class_id = request.query_params.get("class_id")
     task_id = request.query_params.get("task_id")
-    format_type = request.query_params.get("format", "excel")  # excel or csv
+    # 使用format_type避免与DRF的format参数冲突（DRF使用format进行内容协商）
+    format_type = request.query_params.get("format_type", "excel")  # excel or csv
     
     # 转换为整数类型（如果提供了值）
     try:
@@ -530,9 +536,46 @@ def export_grades(request):
     except Exception as e:
         import traceback
         traceback.print_exc()
-        from rest_framework.response import Response
-        from rest_framework import status
         return Response(
             {"error": f"导出失败: {str(e)}"},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
+
+# 类视图版本（备用）
+class ExportGradesView(APIView):
+    """导出成绩（Excel或CSV）"""
+    permission_classes = [IsTeacherOrAdmin]
+    
+    def get(self, request):
+        # 从查询参数获取过滤条件
+        class_id = request.query_params.get("class_id")
+        task_id = request.query_params.get("task_id")
+        format_type = request.query_params.get("format", "excel")  # excel or csv
+        
+        # 转换为整数类型（如果提供了值）
+        try:
+            class_id = int(class_id) if class_id else None
+        except (ValueError, TypeError):
+            class_id = None
+        
+        try:
+            task_id = int(task_id) if task_id else None
+        except (ValueError, TypeError):
+            task_id = None
+        
+        try:
+            if format_type == "csv":
+                response = export_submissions_to_csv(class_id=class_id, task_id=task_id)
+            else:
+                response = export_submissions_to_excel(class_id=class_id, task_id=task_id)
+            
+            # 确保响应不被DRF的渲染器处理
+            response._is_rendered = True
+            return response
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            return Response(
+                {"error": f"导出失败: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
