@@ -2,18 +2,17 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Editor from "@monaco-editor/react";
 import { api } from "../services/api";
-import { useAuth } from "../context/AuthContext";
 import type { Task } from "../types";
 import { getErrorMessage } from "../utils/errorHandler";
 
 export const CodeEditor: React.FC = () => {
   const { taskId } = useParams<{ taskId: string }>();
-  const { user } = useAuth();
   const [task, setTask] = useState<Task | null>(null);
   const [code, setCode] = useState("");
   const [language, setLanguage] = useState<"java" | "python">("java");
   const [testResults, setTestResults] = useState<any>(null);
-  const [testTime, setTestTime] = useState<string>("");
+  const [pageStartTime, setPageStartTime] = useState<number>(Date.now());
+  const [totalTime, setTotalTime] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const [testing, setTesting] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -23,6 +22,8 @@ export const CodeEditor: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    // 记录页面进入时间
+    setPageStartTime(Date.now());
     if (taskId) {
       loadTask();
     }
@@ -95,7 +96,6 @@ export const CodeEditor: React.FC = () => {
     }
     setTesting(true);
     setTestResults(null);
-    setTestTime(new Date().toLocaleString());
     try {
       const result = await api.testCode(Number(taskId), code, language);
       setTestResults(result);
@@ -114,6 +114,9 @@ export const CodeEditor: React.FC = () => {
     if (!confirm("确定要提交吗？提交后将无法修改。")) {
       return;
     }
+    // 计算总耗时（从进入页面到提交）
+    const elapsedTime = (Date.now() - pageStartTime) / 1000; // 转换为秒
+    setTotalTime(elapsedTime);
     setSubmitting(true);
     try {
       const result = await api.submitCode(Number(taskId), code, language);
@@ -393,39 +396,6 @@ export const CodeEditor: React.FC = () => {
               }}>
                 测试结果
               </h4>
-              <div style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-                gap: "12px",
-                fontSize: "var(--font-size-sm, 14px)",
-              }}>
-                <div>
-                  <span style={{ color: "var(--text-secondary, #6b7280)", fontWeight: 500 }}>学生姓名：</span>
-                  <span style={{ color: "var(--text-primary, #1f2937)", marginLeft: "8px" }}>
-                    {user?.username || "未知"}
-                  </span>
-                </div>
-                <div>
-                  <span style={{ color: "var(--text-secondary, #6b7280)", fontWeight: 500 }}>任务名称：</span>
-                  <span style={{ color: "var(--text-primary, #1f2937)", marginLeft: "8px" }}>
-                    {task?.title || "未知"}
-                  </span>
-                </div>
-                <div>
-                  <span style={{ color: "var(--text-secondary, #6b7280)", fontWeight: 500 }}>测试时间：</span>
-                  <span style={{ color: "var(--text-primary, #1f2937)", marginLeft: "8px" }}>
-                    {testTime || "未知"}
-                  </span>
-                </div>
-                {user?.email && (
-                  <div>
-                    <span style={{ color: "var(--text-secondary, #6b7280)", fontWeight: 500 }}>邮箱：</span>
-                    <span style={{ color: "var(--text-primary, #1f2937)", marginLeft: "8px" }}>
-                      {user.email}
-                    </span>
-                  </div>
-                )}
-              </div>
             </div>
             <div style={{
               padding: "12px",
@@ -447,9 +417,9 @@ export const CodeEditor: React.FC = () => {
                   : "var(--warning-hover, #b45309)",
               }}>
                 通过: {testResults.passed_count} / {testResults.total_count}
-                {testResults.total_time && (
+                {(totalTime !== null || testResults.total_time) && (
                   <span style={{ marginLeft: "16px", fontSize: "var(--font-size-sm, 14px)" }}>
-                    耗时: {testResults.total_time.toFixed(2)}秒
+                    耗时: {totalTime !== null ? totalTime.toFixed(2) : testResults.total_time.toFixed(2)}秒
                   </span>
                 )}
               </p>
