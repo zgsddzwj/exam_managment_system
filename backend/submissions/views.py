@@ -66,6 +66,9 @@ def test_code(request, task_id):
             language=language,
             stdin=test_case.input_data,
             expected_output=test_case.expected_output,
+            solution_mode=task.solution_mode,
+            function_name=task.function_name,
+            template_code=task.template_code,
         )
         
         test_results.append({
@@ -150,6 +153,9 @@ def submit_code(request, task_id):
             language=language,
             stdin=test_case.input_data,
             expected_output=test_case.expected_output,
+            solution_mode=task.solution_mode,
+            function_name=task.function_name,
+            template_code=task.template_code,
         )
         
         passed = result.get("passed", False)

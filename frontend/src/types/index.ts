@@ -47,6 +47,10 @@ export interface Task {
   is_active: boolean;
   created_at: string;
   updated_at: string;
+  // LeetCode模式支持
+  solution_mode?: "full" | "function"; // 代码模式：完整程序 或 函数模式
+  function_name?: string; // 函数名称（函数模式必需）
+  template_code?: string; // 模板代码（可选）
 }
 
 export interface TestCase {

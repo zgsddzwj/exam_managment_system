@@ -18,12 +18,31 @@ export function getErrorMessage(error: any, defaultMessage: string = "操作失�
 
   const response = error.response;
   const data = response.data;
+  const errorMessage = typeof data === 'string' ? data : (data?.detail || data?.error || '');
+
+  // 优先处理401错误（通常是token过期）
+  if (response.status === 401) {
+    // 检查是否有token过期标记
+    if (data?.token_expired || 
+        errorMessage?.includes("token") || 
+        errorMessage?.includes("登录已过期") ||
+        errorMessage?.includes("Invalid token") ||
+        errorMessage?.includes("Token") ||
+        errorMessage?.includes("not provided") ||
+        errorMessage?.includes("Authentication credentials were not provided")) {
+      return "登录已过期，请重新登录";
+    }
+    // 如果是登录接口的401，且错误消息明确提到用户名或密码，才显示"用户名或密码错误"
+    if (error.config?.url?.includes("/auth/login/") && 
+        (errorMessage?.includes("password") || errorMessage?.includes("username") || errorMessage?.includes("No active account"))) {
+      return "用户名或密码错误";
+    }
+    // 其他401错误，默认显示登录过期
+    return "登录已过期，请重新登录";
+  }
 
   // 如果没有数据，根据状态码返回友好消息
   if (!data) {
-    if (response.status === 401) {
-      return "登录已过期，请重新登录";
-    }
     if (response.status === 403) {
       return "您没有权限执行此操作";
     }
@@ -157,13 +176,31 @@ function formatError(message: string): string {
 
   // 认证相关错误
   if (message.includes("authentication") || message.includes("credentials")) {
-    return "用户名或密码错误";
+    // 检查是否是token相关的认证错误或未提供认证信息
+    if (message.includes("token") || 
+        message.includes("Invalid token") || 
+        message.includes("Token") ||
+        message.includes("not provided") ||
+        message.includes("were not provided") ||
+        message.includes("Authentication credentials were not provided")) {
+      return "登录已过期，请重新登录";
+    }
+    // 只有在明确是登录接口的错误时，才显示"用户名或密码错误"
+    // 其他情况（如查看任务等）应该显示"登录已过期"
+    return "登录已过期，请重新登录";
   }
   if (message.includes("token") && message.includes("invalid")) {
     return "登录已过期，请重新登录";
   }
+  if (message.includes("Invalid token") || message.includes("Token is invalid") || message.includes("token is invalid")) {
+    return "登录已过期，请重新登录";
+  }
   if (message.includes("No active account")) {
     return "账号不存在或未激活";
+  }
+  // 网络连接错误
+  if (message.includes("Network Error") || message.includes("ERR_CONNECTION_REFUSED") || message.includes("Failed to fetch")) {
+    return "无法连接到服务器，请检查后端服务是否运行";
   }
 
   // 权限相关错误

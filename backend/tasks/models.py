@@ -33,6 +33,15 @@ class Task(models.Model):
         verbose_name="创建者"
     )
     deadline = models.DateTimeField(null=True, blank=True, verbose_name="截止时间")
+    # LeetCode模式支持：模板代码和函数名称
+    template_code = models.TextField(null=True, blank=True, verbose_name="模板代码")
+    function_name = models.CharField(max_length=100, null=True, blank=True, verbose_name="函数名称")
+    solution_mode = models.CharField(
+        max_length=20,
+        choices=[("full", "完整程序"), ("function", "函数模式")],
+        default="full",
+        verbose_name="代码模式"
+    )
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="创建时间")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="更新时间")
     is_active = models.BooleanField(default=True, verbose_name="是否激活")

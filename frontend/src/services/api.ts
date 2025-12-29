@@ -40,8 +40,16 @@ class ApiClient {
       (response) => response,
       async (error) => {
         const originalRequest = error.config;
+        // 处理401未授权错误（token过期）
         if (error.response?.status === 401 && !originalRequest._retry) {
           originalRequest._retry = true;
+          
+          // 如果是在登录接口，直接返回错误（避免无限循环）
+          if (originalRequest.url?.includes("/auth/login/") || 
+              originalRequest.url?.includes("/auth/register/")) {
+            return Promise.reject(error);
+          }
+          
           try {
             const refresh = localStorage.getItem("refresh_token");
             if (refresh) {
@@ -52,12 +60,36 @@ class ApiClient {
               localStorage.setItem("access_token", access);
               originalRequest.headers.Authorization = `Bearer ${access}`;
               return this.client(originalRequest);
+            } else {
+              // 没有refresh token，清除并跳转登录
+              localStorage.removeItem("access_token");
+              localStorage.removeItem("refresh_token");
+              // 修改错误信息，避免显示"用户名或密码错误"
+              error.response.data = {
+                ...error.response.data,
+                detail: "登录已过期，请重新登录",
+                token_expired: true,
+              };
+              window.location.href = "/login";
+              return Promise.reject(error);
             }
-          } catch (refreshError) {
+          } catch (refreshError: any) {
+            // token刷新失败，清除并跳转登录
             localStorage.removeItem("access_token");
             localStorage.removeItem("refresh_token");
-            window.location.href = "/login";
-            return Promise.reject(refreshError);
+            // 修改错误信息
+            if (error.response) {
+              error.response.data = {
+                ...error.response.data,
+                detail: "登录已过期，请重新登录",
+                token_expired: true,
+              };
+            }
+            // 如果是登录页面，不跳转
+            if (!window.location.pathname.includes("/login")) {
+              window.location.href = "/login";
+            }
+            return Promise.reject(error);
           }
         }
         return Promise.reject(error);
@@ -155,6 +187,9 @@ class ApiClient {
     language: "java" | "python";
     class_obj: number;
     deadline?: string;
+    solution_mode?: "full" | "function";
+    function_name?: string;
+    template_code?: string;
     test_cases?: Array<{
       input_data: string;
       expected_output: string;

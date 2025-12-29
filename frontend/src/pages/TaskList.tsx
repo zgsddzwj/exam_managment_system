@@ -15,6 +15,9 @@ export const TaskList: React.FC = () => {
     description: "",
     language: "python" as "java" | "python",
     deadline: "",
+    solution_mode: "full" as "full" | "function",
+    function_name: "",
+    template_code: "",
   });
   const [testCases, setTestCases] = useState([
     { input_data: "", expected_output: "", is_hidden: false, order: 0, weight: 1.0 },
@@ -85,6 +88,12 @@ export const TaskList: React.FC = () => {
       return;
     }
 
+    // 验证函数模式必需的字段
+    if (newTask.solution_mode === "function" && !newTask.function_name.trim()) {
+      alert("函数模式下必须指定函数名称");
+      return;
+    }
+
     try {
       await api.createTask({
         ...newTask,
@@ -98,7 +107,7 @@ export const TaskList: React.FC = () => {
         })),
       });
       setShowCreateForm(false);
-      setNewTask({ title: "", description: "", language: "python", deadline: "" });
+      setNewTask({ title: "", description: "", language: "python", deadline: "", solution_mode: "full", function_name: "", template_code: "" });
       setTestCases([
         { input_data: "", expected_output: "", is_hidden: false, order: 0, weight: 1.0 },
       ]);
@@ -346,6 +355,142 @@ export const TaskList: React.FC = () => {
               marginBottom: "8px",
               color: "var(--text-primary, #1f2937)",
             }}>
+              代码模式<span style={{ color: "var(--danger-color, #dc2626)", marginLeft: "4px" }}>*</span>
+            </label>
+            <select
+              value={newTask.solution_mode}
+              onChange={(e) => setNewTask({ ...newTask, solution_mode: e.target.value as "full" | "function" })}
+              style={{
+                width: "100%",
+                padding: "12px",
+                marginTop: "4px",
+                border: "1px solid var(--border-color, #e5e7eb)",
+                borderRadius: "var(--radius-md, 6px)",
+                fontSize: "var(--font-size-base, 16px)",
+                transition: "border-color 0.2s ease, box-shadow 0.2s ease",
+              }}
+              onFocus={(e) => {
+                e.currentTarget.style.borderColor = "var(--primary-color, #1e40af)";
+                e.currentTarget.style.boxShadow = "0 0 0 3px var(--primary-lighter, #dbeafe)";
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.borderColor = "var(--border-color, #e5e7eb)";
+                e.currentTarget.style.boxShadow = "none";
+              }}
+            >
+              <option value="full">完整程序模式（学生编写完整可执行程序）</option>
+              <option value="function">函数模式（LeetCode风格，学生只需编写函数）</option>
+            </select>
+            <div style={{
+              marginTop: "8px",
+              padding: "10px",
+              backgroundColor: newTask.solution_mode === "function" ? "var(--info-light, #cffafe)" : "var(--bg-tertiary, #f3f4f6)",
+              borderRadius: "var(--radius-md, 6px)",
+              fontSize: "var(--font-size-sm, 14px)",
+              color: newTask.solution_mode === "function" ? "var(--info-hover, #0e7490)" : "var(--text-secondary, #6b7280)",
+            }}>
+              {newTask.solution_mode === "function" 
+                ? "✓ LeetCode模式：学生只需编写函数代码，系统会自动处理输入输出和测试。适合算法练习。"
+                : "完整程序模式：学生需要编写完整的可执行程序，包括main函数和输入输出处理。"}
+            </div>
+          </div>
+
+          {newTask.solution_mode === "function" && (
+            <>
+              <div style={{ marginBottom: "20px" }}>
+                <label style={{
+                  fontWeight: 500,
+                  display: "block",
+                  marginBottom: "8px",
+                  color: "var(--text-primary, #1f2937)",
+                }}>
+                  函数名称<span style={{ color: "var(--danger-color, #dc2626)", marginLeft: "4px" }}>*</span>
+                </label>
+                <input
+                  type="text"
+                  value={newTask.function_name}
+                  onChange={(e) => setNewTask({ ...newTask, function_name: e.target.value })}
+                  required={newTask.solution_mode === "function"}
+                  placeholder={newTask.language === "python" ? "例如：twoSum" : "例如：twoSum"}
+                  style={{
+                    width: "100%",
+                    padding: "12px",
+                    marginTop: "4px",
+                    border: "1px solid var(--border-color, #e5e7eb)",
+                    borderRadius: "var(--radius-md, 6px)",
+                    fontSize: "var(--font-size-base, 16px)",
+                    transition: "border-color 0.2s ease, box-shadow 0.2s ease",
+                  }}
+                  onFocus={(e) => {
+                    e.currentTarget.style.borderColor = "var(--primary-color, #1e40af)";
+                    e.currentTarget.style.boxShadow = "0 0 0 3px var(--primary-lighter, #dbeafe)";
+                  }}
+                  onBlur={(e) => {
+                    e.currentTarget.style.borderColor = "var(--border-color, #e5e7eb)";
+                    e.currentTarget.style.boxShadow = "none";
+                  }}
+                />
+                <div style={{
+                  marginTop: "6px",
+                  fontSize: "var(--font-size-xs, 12px)",
+                  color: "var(--text-secondary, #6b7280)",
+                }}>
+                  学生需要实现的函数名称
+                </div>
+              </div>
+              <div style={{ marginBottom: "20px" }}>
+                <label style={{
+                  fontWeight: 500,
+                  display: "block",
+                  marginBottom: "8px",
+                  color: "var(--text-primary, #1f2937)",
+                }}>
+                  模板代码（可选）
+                </label>
+                <textarea
+                  value={newTask.template_code}
+                  onChange={(e) => setNewTask({ ...newTask, template_code: e.target.value })}
+                  rows={8}
+                  placeholder={newTask.language === "python" 
+                    ? `# Python示例：\ndef ${newTask.function_name || "function"}(nums, target):\n    # 在这里编写你的代码\n    pass`
+                    : `// Java示例：\npublic class Solution {\n    public int ${newTask.function_name || "function"}(int[] nums, int target) {\n        // 在这里编写你的代码\n        return 0;\n    }\n}`}
+                  style={{
+                    width: "100%",
+                    padding: "12px",
+                    marginTop: "4px",
+                    border: "1px solid var(--border-color, #e5e7eb)",
+                    borderRadius: "var(--radius-md, 6px)",
+                    fontSize: "var(--font-size-sm, 14px)",
+                    fontFamily: "monospace",
+                    transition: "border-color 0.2s ease, box-shadow 0.2s ease",
+                  }}
+                  onFocus={(e) => {
+                    e.currentTarget.style.borderColor = "var(--primary-color, #1e40af)";
+                    e.currentTarget.style.boxShadow = "0 0 0 3px var(--primary-lighter, #dbeafe)";
+                  }}
+                  onBlur={(e) => {
+                    e.currentTarget.style.borderColor = "var(--border-color, #e5e7eb)";
+                    e.currentTarget.style.boxShadow = "none";
+                  }}
+                />
+                <div style={{
+                  marginTop: "6px",
+                  fontSize: "var(--font-size-xs, 12px)",
+                  color: "var(--text-secondary, #6b7280)",
+                }}>
+                  可选：提供函数签名和基础代码框架。如果不提供，学生需要从头编写函数定义。
+                </div>
+              </div>
+            </>
+          )}
+
+          <div style={{ marginBottom: "20px" }}>
+            <label style={{
+              fontWeight: 500,
+              display: "block",
+              marginBottom: "8px",
+              color: "var(--text-primary, #1f2937)",
+            }}>
               截止时间（可选）
             </label>
             <input
@@ -556,7 +701,15 @@ export const TaskList: React.FC = () => {
               type="button"
               onClick={() => {
                 setShowCreateForm(false);
-                setNewTask({ title: "", description: "", language: "python", deadline: "" });
+                setNewTask({ 
+                  title: "", 
+                  description: "", 
+                  language: "python", 
+                  deadline: "",
+                  solution_mode: "full",
+                  function_name: "",
+                  template_code: "",
+                });
                 setTestCases([
                   { input_data: "", expected_output: "", is_hidden: false, order: 0, weight: 1.0 },
                 ]);

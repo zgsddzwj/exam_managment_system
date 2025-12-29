@@ -37,7 +37,8 @@ class TaskSerializer(serializers.ModelSerializer):
         fields = [
             "id", "title", "description", "language", "class_obj",
             "class_name", "created_by", "created_by_name", "deadline",
-            "test_case_count", "is_active", "created_at", "updated_at"
+            "test_case_count", "is_active", "created_at", "updated_at",
+            "solution_mode", "function_name", "template_code"
         ]
         read_only_fields = ["id", "created_at", "updated_at"]
     
@@ -60,7 +61,8 @@ class TaskDetailSerializer(serializers.ModelSerializer):
         fields = [
             "id", "title", "description", "language", "class_obj",
             "class_name", "created_by", "created_by_name", "deadline",
-            "test_cases", "is_active", "created_at", "updated_at"
+            "test_cases", "is_active", "created_at", "updated_at",
+            "template_code", "function_name", "solution_mode"
         ]
         read_only_fields = ["id", "created_at", "updated_at"]
 
@@ -74,7 +76,8 @@ class TaskCreateSerializer(serializers.ModelSerializer):
         model = Task
         fields = [
             "title", "description", "language", "class_obj",
-            "deadline", "is_active", "test_cases"
+            "deadline", "is_active", "test_cases",
+            "template_code", "function_name", "solution_mode"
         ]
     
     def create(self, validated_data):
