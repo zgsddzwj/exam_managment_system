@@ -187,6 +187,9 @@ CORS_ALLOWED_ORIGINS = [
 CORS_ALLOW_CREDENTIALS = True
 
 # Judge0 API Configuration
+# 选项1: 使用RapidAPI（需要API key，注册地址: https://rapidapi.com/judge0-official/api/judge0-ce）
+# 选项2: 使用Judge0 CE公共实例（免费，无需API key，但可能有速率限制）
+# 如果使用公共实例，设置: JUDGE0_API_URL=https://ce.judge0.com，JUDGE0_API_KEY留空
 JUDGE0_API_URL = os.getenv("JUDGE0_API_URL", "https://judge0-ce.p.rapidapi.com")
-JUDGE0_API_KEY = os.getenv("JUDGE0_API_KEY", "")
+JUDGE0_API_KEY = os.getenv("JUDGE0_API_KEY", "564272a764msh6ebda9deeb299ddp18835ejsn9002c3e5521d")
 JUDGE0_RAPIDAPI_HOST = os.getenv("JUDGE0_RAPIDAPI_HOST", "judge0-ce.p.rapidapi.com")

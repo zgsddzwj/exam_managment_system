@@ -40,6 +40,12 @@ class TaskSerializer(serializers.ModelSerializer):
             "test_case_count", "is_active", "created_at", "updated_at"
         ]
         read_only_fields = ["id", "created_at", "updated_at"]
+    
+    def get_test_case_count(self, obj):
+        """获取测试用例数量"""
+        if hasattr(obj, 'test_cases'):
+            return obj.test_cases.count()
+        return 0
 
 
 class TaskDetailSerializer(serializers.ModelSerializer):

@@ -71,6 +71,10 @@ export interface Submission {
   updated_at: string;
 }
 
+export interface SubmissionDetail extends Submission {
+  test_results?: TestResult[];
+}
+
 export interface TestResult {
   id: number;
   test_case: number;

@@ -23,6 +23,7 @@ export const CodeEditor: React.FC = () => {
 
   const loadTask = async () => {
     try {
+      setLoading(true);
       const data = await api.getStudentTask(Number(taskId));
       setTask(data);
       setLanguage(data.language);
@@ -30,6 +31,9 @@ export const CodeEditor: React.FC = () => {
     } catch (error: any) {
       console.error("加载任务失败:", error);
       alert(getErrorMessage(error, "加载任务失败"));
+      navigate("/my-tasks");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -89,7 +93,13 @@ export const CodeEditor: React.FC = () => {
     }
   };
 
-  if (!task) return <div>加载中...</div>;
+  if (loading || !task) {
+    return (
+      <div style={{ padding: "20px", textAlign: "center" }}>
+        <div style={{ fontSize: "18px", color: "#6c757d" }}>加载中...</div>
+      </div>
+    );
+  }
 
   return (
     <div style={{ display: "flex", height: "calc(100vh - 100px)" }}>
@@ -164,10 +174,19 @@ export const CodeEditor: React.FC = () => {
                 }}
               >
                 <strong>测试用例 {index + 1}:</strong> {result.passed ? "通过" : "失败"}
-                {result.error && <div style={{ color: "red", marginTop: "5px" }}>{result.error}</div>}
-                {result.stdout && (
+                {(result.error_message || result.error || result.stderr) && (
+                  <div style={{ color: "red", marginTop: "5px" }}>
+                    <strong>错误:</strong> {result.error_message || result.error || result.stderr}
+                  </div>
+                )}
+                {(result.output || result.stdout) && (
                   <div style={{ marginTop: "5px" }}>
-                    <strong>输出:</strong> {result.stdout}
+                    <strong>输出:</strong> {result.output || result.stdout}
+                  </div>
+                )}
+                {result.expected_output && (
+                  <div style={{ marginTop: "5px", color: "#666" }}>
+                    <strong>期望输出:</strong> {result.expected_output}
                   </div>
                 )}
               </div>

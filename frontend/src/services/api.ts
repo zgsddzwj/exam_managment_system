@@ -1,10 +1,11 @@
-import axios, { AxiosInstance } from "axios";
+import axios, { type AxiosInstance } from "axios";
 import type {
   User,
   Class,
   Task,
   Submission,
   LoginResponse,
+  InvitationCode,
 } from "../types";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000/api";
@@ -94,7 +95,8 @@ class ApiClient {
   // 班级相关
   async getClasses(): Promise<Class[]> {
     const response = await this.client.get("/classes/");
-    return response.data;
+    // 处理分页响应格式
+    return response.data.results || response.data;
   }
 
   async getMyClasses(): Promise<Class[]> {
@@ -128,7 +130,8 @@ class ApiClient {
   async getTasks(classId?: number): Promise<Task[]> {
     const params = classId ? { class_id: classId } : {};
     const response = await this.client.get("/tasks/", { params });
-    return response.data;
+    // 处理分页响应格式
+    return response.data.results || response.data;
   }
 
   async getStudentTasks(): Promise<Task[]> {
@@ -184,7 +187,8 @@ class ApiClient {
   async getMySubmissions(taskId?: number): Promise<Submission[]> {
     const params = taskId ? { task_id: taskId } : {};
     const response = await this.client.get("/submissions/my/", { params });
-    return response.data;
+    // 处理分页响应格式
+    return response.data.results || response.data;
   }
 
   async getSubmission(id: number): Promise<any> {
@@ -195,7 +199,8 @@ class ApiClient {
   async getClassSubmissions(classId: number, taskId?: number): Promise<Submission[]> {
     const params = taskId ? { task_id: taskId } : {};
     const response = await this.client.get(`/submissions/classes/${classId}/`, { params });
-    return response.data;
+    // 处理分页响应格式
+    return response.data.results || response.data;
   }
 
   async exportGrades(classId?: number, taskId?: number, format: "excel" | "csv" = "excel") {
@@ -217,7 +222,8 @@ class ApiClient {
 
   async getUserList(): Promise<User[]> {
     const response = await this.client.get("/auth/list/");
-    return response.data;
+    // 处理分页响应格式
+    return response.data.results || response.data;
   }
 
   async updateUserRole(userId: number, role: "admin" | "teacher" | "student") {

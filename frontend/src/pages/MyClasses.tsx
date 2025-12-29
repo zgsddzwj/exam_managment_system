@@ -36,7 +36,13 @@ export const MyClasses: React.FC = () => {
     }
   };
 
-  if (loading) return <div>加载中...</div>;
+  if (loading) {
+    return (
+      <div style={{ padding: "20px", textAlign: "center" }}>
+        <div style={{ fontSize: "18px", color: "#6c757d" }}>加载中...</div>
+      </div>
+    );
+  }
 
   return (
     <div style={{ padding: "20px" }}>
@@ -69,7 +75,18 @@ export const MyClasses: React.FC = () => {
       </div>
       <div>
         {classes.length === 0 ? (
-          <p>您还没有加入任何班级</p>
+          <div
+            style={{
+              padding: "40px",
+              textAlign: "center",
+              border: "2px dashed #ddd",
+              borderRadius: "8px",
+              backgroundColor: "#f8f9fa",
+            }}
+          >
+            <h3 style={{ color: "#6c757d", marginBottom: "10px" }}>您还没有加入任何班级</h3>
+            <p style={{ color: "#6c757d" }}>使用上方的邀请码加入班级</p>
+          </div>
         ) : (
           classes.map((cls) => (
             <div

@@ -27,7 +27,7 @@ class ClassSerializer(serializers.ModelSerializer):
             "id", "name", "description", "teacher", "teacher_name",
             "student_count", "active_invitation_code", "created_at", "updated_at"
         ]
-        read_only_fields = ["id", "created_at", "updated_at"]
+        read_only_fields = ["id", "teacher", "created_at", "updated_at"]
     
     def get_student_count(self, obj):
         return obj.students.count()
@@ -52,7 +52,7 @@ class ClassDetailSerializer(serializers.ModelSerializer):
             "id", "name", "description", "teacher", "teacher_name",
             "students", "invitation_codes", "created_at", "updated_at"
         ]
-        read_only_fields = ["id", "created_at", "updated_at"]
+        read_only_fields = ["id", "teacher", "created_at", "updated_at"]
     
     def get_students(self, obj):
         from users.serializers import UserSerializer

@@ -28,7 +28,8 @@ class TaskListCreateView(generics.ListCreateAPIView):
         user = self.request.user
         class_id = self.request.query_params.get("class_id")
         
-        queryset = Task.objects.all()
+        # 使用select_related优化查询，减少数据库查询次数
+        queryset = Task.objects.select_related('class_obj', 'created_by').prefetch_related('test_cases')
         
         if class_id:
             queryset = queryset.filter(class_obj_id=class_id)
@@ -51,9 +52,11 @@ class TaskDetailView(generics.RetrieveUpdateDestroyAPIView):
     
     def get_queryset(self):
         user = self.request.user
+        # 使用select_related和prefetch_related优化查询
+        queryset = Task.objects.select_related('class_obj', 'created_by').prefetch_related('test_cases')
         if user.is_admin:
-            return Task.objects.all()
-        return Task.objects.filter(class_obj__teacher=user)
+            return queryset
+        return queryset.filter(class_obj__teacher=user)
 
 
 @api_view(["GET"])
@@ -68,8 +71,11 @@ def student_task_list(request):
     # 获取学生加入的所有班级
     classes = user.joined_classes.all()
     
-    # 获取这些班级的所有任务
-    tasks = Task.objects.filter(class_obj__in=classes, is_active=True)
+    # 获取这些班级的所有任务，使用select_related优化查询
+    tasks = Task.objects.filter(
+        class_obj__in=classes, 
+        is_active=True
+    ).select_related('class_obj', 'created_by').prefetch_related('test_cases')
     
     serializer = TaskSerializer(tasks, many=True)
     return Response(serializer.data)

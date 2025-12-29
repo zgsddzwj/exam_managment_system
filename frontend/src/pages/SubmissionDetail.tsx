@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { api } from "../services/api";
-import type { Submission, TestResult } from "../types";
+import type { SubmissionDetail as SubmissionDetailType, TestResult } from "../types";
 import { getErrorMessage } from "../utils/errorHandler";
 
 export const SubmissionDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const [submission, setSubmission] = useState<Submission | null>(null);
+  const [submission, setSubmission] = useState<SubmissionDetailType | null>(null);
   const [testResults, setTestResults] = useState<TestResult[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();

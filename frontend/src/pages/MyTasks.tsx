@@ -24,14 +24,31 @@ export const MyTasks: React.FC = () => {
     }
   };
 
-  if (loading) return <div>加载中...</div>;
+  if (loading) {
+    return (
+      <div style={{ padding: "20px", textAlign: "center" }}>
+        <div style={{ fontSize: "18px", color: "#6c757d" }}>加载中...</div>
+      </div>
+    );
+  }
 
   return (
     <div style={{ padding: "20px" }}>
       <h2>我的任务</h2>
       <div>
         {tasks.length === 0 ? (
-          <p>暂无任务</p>
+          <div
+            style={{
+              padding: "40px",
+              textAlign: "center",
+              border: "2px dashed #ddd",
+              borderRadius: "8px",
+              backgroundColor: "#f8f9fa",
+            }}
+          >
+            <h3 style={{ color: "#6c757d", marginBottom: "10px" }}>暂无任务</h3>
+            <p style={{ color: "#6c757d" }}>您还没有加入任何班级，或者班级中还没有任务</p>
+          </div>
         ) : (
           tasks.map((task) => (
             <div
@@ -51,7 +68,7 @@ export const MyTasks: React.FC = () => {
                   {task.title}
                 </Link>
               </h3>
-              <p>{task.description.substring(0, 100)}...</p>
+              <p>{task.description.length > 100 ? task.description.substring(0, 100) + "..." : task.description}</p>
               <p>
                 <strong>班级:</strong> {task.class_name}
               </p>

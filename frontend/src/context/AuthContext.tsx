@@ -45,6 +45,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     localStorage.setItem("access_token", response.access);
     localStorage.setItem("refresh_token", response.refresh);
     setUser(response.user);
+    // 返回Promise，确保状态更新后再resolve
+    return new Promise<void>((resolve) => {
+      // 使用setTimeout确保状态更新完成
+      setTimeout(() => resolve(), 0);
+    });
   };
 
   const register = async (data: {
@@ -58,6 +63,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     localStorage.setItem("access_token", response.access);
     localStorage.setItem("refresh_token", response.refresh);
     setUser(response.user);
+    // 返回Promise，确保状态更新后再resolve
+    return new Promise<void>((resolve) => {
+      // 使用setTimeout确保状态更新完成
+      setTimeout(() => resolve(), 0);
+    });
   };
 
   const logout = () => {

@@ -17,15 +17,23 @@ class CodeExecutionService:
         self.api_url = settings.JUDGE0_API_URL
         self.api_key = settings.JUDGE0_API_KEY
         self.rapidapi_host = settings.JUDGE0_RAPIDAPI_HOST
+        # 如果是Judge0 CE公共实例（ce.judge0.com），不需要API key
+        self.is_rapidapi = "rapidapi.com" in self.api_url.lower()
     
     def _get_headers(self):
         """获取请求头"""
         headers = {
             "Content-Type": "application/json",
         }
-        if self.api_key:
-            headers["X-RapidAPI-Key"] = self.api_key
-            headers["X-RapidAPI-Host"] = self.rapidapi_host
+        # RapidAPI模式需要API key和Host头
+        if self.is_rapidapi:
+            if self.api_key:
+                headers["X-RapidAPI-Key"] = self.api_key
+                headers["X-RapidAPI-Host"] = self.rapidapi_host
+            else:
+                # RapidAPI模式但缺少API key
+                raise ValueError("使用RapidAPI模式需要配置JUDGE0_API_KEY环境变量")
+        # Judge0 CE公共实例不需要认证头
         return headers
     
     def execute_code(
@@ -71,13 +79,30 @@ class CodeExecutionService:
             submission_data["expected_output"] = expected_output
         
         try:
+            # 获取请求头
+            try:
+                headers = self._get_headers()
+            except ValueError as e:
+                return {
+                    "success": False,
+                    "error": str(e),
+                    "details": "请配置JUDGE0_API_KEY环境变量，或使用Judge0 CE公共实例（设置JUDGE0_API_URL=https://ce.judge0.com）。",
+                }
+            
             # 提交代码
             response = requests.post(
                 f"{self.api_url}/submissions",
                 json=submission_data,
-                headers=self._get_headers(),
+                headers=headers,
                 timeout=30,
             )
+            
+            if response.status_code == 401:
+                return {
+                    "success": False,
+                    "error": "Judge0 API认证失败",
+                    "details": "如果使用RapidAPI，请检查JUDGE0_API_KEY是否正确。访问https://rapidapi.com/judge0-official/api/judge0-ce获取有效的API key。如需使用免费的Judge0 CE公共实例，请将JUDGE0_API_URL设置为https://ce.judge0.com并清除JUDGE0_API_KEY。",
+                }
             
             if response.status_code != 201:
                 return {
