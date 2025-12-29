@@ -520,9 +520,13 @@ def export_grades(request):
     
     try:
         if format_type == "csv":
-            return export_submissions_to_csv(class_id=class_id, task_id=task_id)
+            response = export_submissions_to_csv(class_id=class_id, task_id=task_id)
         else:
-            return export_submissions_to_excel(class_id=class_id, task_id=task_id)
+            response = export_submissions_to_excel(class_id=class_id, task_id=task_id)
+        
+        # 确保响应不被DRF的渲染器处理
+        response._is_rendered = True
+        return response
     except Exception as e:
         import traceback
         traceback.print_exc()
