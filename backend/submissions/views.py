@@ -16,6 +16,8 @@ from .export import export_submissions_to_excel, export_submissions_to_csv
 from users.permissions import IsTeacherOrAdmin
 
 import time
+import requests
+import json
 
 
 @api_view(["POST"])
@@ -214,6 +216,227 @@ def submit_code(request, task_id):
         "message": "提交成功",
         "submission": serializer.data,
     }, status=status.HTTP_201_CREATED if created else status.HTTP_200_OK)
+
+
+@api_view(["POST"])
+@permission_classes([permissions.IsAuthenticated])
+def get_code_analysis(request, task_id):
+    """获取代码解析（使用DeepSeek Coder分析问题思路）"""
+    user = request.user
+    
+    if not user.is_student:
+        return Response({"error": "只有学生可以查看解析"}, status=status.HTTP_403_FORBIDDEN)
+    
+    try:
+        task = Task.objects.get(id=task_id, is_active=True)
+    except Task.DoesNotExist:
+        return Response({"error": "任务不存在"}, status=status.HTTP_404_NOT_FOUND)
+    
+    # 检查学生是否在该班级
+    if not user.joined_classes.filter(id=task.class_obj.id).exists():
+        return Response({"error": "您没有权限访问此任务"}, status=status.HTTP_403_FORBIDDEN)
+    
+    # 获取学生提交的代码
+    code_content = request.data.get("code_content", "")
+    if not code_content:
+        return Response({"error": "代码内容不能为空"}, status=status.HTTP_400_BAD_REQUEST)
+    
+    # 构建prompt
+    # 获取测试用例信息
+    test_cases = task.test_cases.filter(is_hidden=False).order_by("order")[:3]  # 只显示前3个测试用例
+    test_examples = []
+    for tc in test_cases:
+        test_examples.append(f"输入: {tc.input_data}\n输出: {tc.expected_output}")
+    
+    language_name = "Python" if task.language == "python" else "Java"
+    
+    prompt = f"""你是一位经验丰富的编程教师。请分析以下编程题目和学生当前的解答，给出详细的解题思路和关键代码逻辑，但不要给出完整可运行的代码。
+
+题目名称: {task.title}
+
+题目描述:
+{task.description}
+
+编程语言: {language_name}
+
+函数/方法签名:
+"""
+    
+    if task.function_name:
+        if task.language == "python":
+            prompt += f"def {task.function_name}(参数):\n"
+        else:
+            prompt += f"public static int {task.function_name}(参数) {{}}\n"
+    else:
+        prompt += "（学生需要实现的方法）\n"
+    
+    if test_examples:
+        prompt += f"""
+测试用例示例:
+{chr(10).join(f'{i+1}. {ex}' for i, ex in enumerate(test_examples))}
+"""
+    
+    prompt += f"""
+
+学生当前的代码:
+```{task.language}
+{code_content}
+```
+
+请按以下格式给出详细的解析（可以用代码片段说明逻辑，但不要给完整可运行的代码）：
+
+1. **题目分析**
+   - 核心要求：简要说明题目要解决什么问题
+   - 输入输出：说明输入参数的含义和输出要求
+   - 约束条件：说明需要注意的限制条件
+
+2. **解题思路**
+   - 关键观察：需要注意到哪些关键点
+   - 算法/方法选择：应该用什么方法来解决（如：循环、递归、双指针、哈希表等）
+   - 步骤分解：将解题过程分解为几个关键步骤，说明每一步要做什么
+   - 边界情况：哪些特殊情况需要处理
+
+3. **关键代码逻辑（用伪代码或代码片段说明）**
+   - 可以用类似这样的方式说明逻辑：
+     ```
+     // 步骤1：判断边界条件
+     if (条件) {{ 
+         return 结果;
+     }}
+     
+     // 步骤2：初始化变量
+     int 变量名 = 初始值;
+     
+     // 步骤3：循环处理
+     while (循环条件) {{
+         // 具体操作逻辑说明
+     }}
+     ```
+   - 注意：只给关键的逻辑片段，不要给完整的方法实现
+   - 可以用注释说明每个步骤的作用，但不要补全所有代码
+
+4. **当前代码分析**
+   - 思路正确性：学生的思路是否正确
+   - 代码问题：指出代码中的具体问题（参数名错误、类型错误、逻辑错误等）
+   - 遗漏部分：是否遗漏了某些重要步骤
+   - 改进方向：应该如何修改（用伪代码或代码片段说明，不要给完整代码）
+
+5. **提示与建议**
+   - 常见陷阱：提醒学生容易犯的错误
+   - 调试建议：如果代码有错误，如何定位问题
+   - 学习建议：推荐相关的知识点或类似题目
+
+**重要要求**：
+- 可以用代码片段和伪代码来说明逻辑，但要确保不能直接复制粘贴运行
+- 代码片段应该是局部的、不完整的，需要学生补充关键部分
+- 用中文回答，语气友好、鼓励学生思考
+- 不要给出完整可运行的代码实现
+- 关键逻辑可以用注释+代码片段的方式展示，但必须是不完整的
+"""
+    
+    # 调用DeepSeek API（增加超时时间和重试机制）
+    deepseek_url = "https://api.deepseek.com/v1/chat/completions"
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer sk-2ea43627c4fa4324a4c7631d64551be6"
+    }
+    
+    payload = {
+        "model": "deepseek-coder",
+        "messages": [
+            {
+                "role": "system",
+                "content": "你是一位经验丰富的编程教师，擅长用清晰易懂的方式解释编程思路。你的职责是：\n1. 给出详细的解题思路和关键代码逻辑\n2. 可以用代码片段和伪代码来说明，但这些片段必须是不完整的、不能直接运行的\n3. 不要给出完整可运行的代码实现，避免学生直接抄袭\n4. 用中文回答，语气友好，鼓励学生思考和学习"
+            },
+            {
+                "role": "user",
+                "content": prompt
+            }
+        ],
+        "temperature": 0.7,
+        "max_tokens": 1500  # 减少token数量以加快响应速度，降低超时风险
+    }
+    
+    # 重试机制：最多尝试3次
+    max_retries = 3
+    last_exception = None
+    
+    for attempt in range(max_retries):
+        # 连接超时15秒，读取超时随重试次数递增（AI生成内容需要较长时间）
+        # 每次重试时增加超时时间：第一次120秒，第二次150秒，第三次180秒
+        read_timeout = 120 + (attempt * 30)
+        try:
+            response = requests.post(
+                deepseek_url, 
+                headers=headers, 
+                json=payload, 
+                timeout=(15, read_timeout)  # (connect_timeout, read_timeout)
+            )
+            
+            if response.status_code != 200:
+                error_msg = f"AI服务返回错误 (状态码: {response.status_code})"
+                if attempt < max_retries - 1:
+                    continue  # 重试
+                return Response({
+                    "error": error_msg,
+                    "details": response.text[:200] if len(response.text) > 200 else response.text
+                }, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+            
+            result = response.json()
+            analysis_content = result.get("choices", [{}])[0].get("message", {}).get("content", "")
+            
+            if not analysis_content:
+                if attempt < max_retries - 1:
+                    continue  # 重试
+                return Response({
+                    "error": "未能获取解析内容，请稍后重试"
+                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            
+            return Response({
+                "success": True,
+                "analysis": analysis_content
+            })
+            
+        except requests.exceptions.Timeout as e:
+            last_exception = e
+            if attempt < max_retries - 1:
+                # 等待3秒后重试，给服务器一些恢复时间
+                import time
+                time.sleep(3 * (attempt + 1))  # 递增等待时间：3秒、6秒、9秒
+                continue
+            # 最后一次尝试失败
+            timeout_type = "连接超时" if "ConnectTimeout" in str(e) or "timed out" in str(e).lower() else "读取超时"
+            return Response({
+                "error": f"AI服务响应{timeout_type}，已重试{max_retries}次仍失败。可能是网络连接不稳定或AI服务繁忙，请稍后重试。",
+                "details": f"超时时间: {read_timeout}秒。错误详情: {str(e)[:100]}"
+            }, status=status.HTTP_504_GATEWAY_TIMEOUT)
+            
+        except requests.exceptions.RequestException as e:
+            last_exception = e
+            if attempt < max_retries - 1:
+                import time
+                time.sleep(3 * (attempt + 1))  # 递增等待时间：3秒、6秒、9秒
+                continue
+            return Response({
+                "error": f"AI服务请求失败，已重试{max_retries}次。可能是网络连接问题，请检查网络或稍后重试。",
+                "details": str(e)[:200]  # 限制错误详情长度
+            }, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+            
+        except Exception as e:
+            last_exception = e
+            if attempt < max_retries - 1:
+                import time
+                time.sleep(3 * (attempt + 1))  # 递增等待时间：3秒、6秒、9秒
+                continue
+            return Response({
+                "error": f"处理失败: {str(e)}"
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    # 如果所有重试都失败了
+    return Response({
+        "error": f"AI服务请求失败，已重试{max_retries}次。请稍后重试。",
+        "details": str(last_exception) if last_exception else "未知错误"
+    }, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
 
 @api_view(["GET"])

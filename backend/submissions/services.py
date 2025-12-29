@@ -702,10 +702,17 @@ class CodeExecutionService:
                 }
             
             if response.status_code != 201:
+                error_details = ""
+                try:
+                    error_data = response.json()
+                    error_details = str(error_data)
+                except:
+                    error_details = response.text[:500]
+                
                 return {
                     "success": False,
                     "error": f"API请求失败: {response.status_code}",
-                    "details": response.text,
+                    "details": error_details,
                 }
             
             token = response.json().get("token")
@@ -728,9 +735,17 @@ class CodeExecutionService:
                 )
                 
                 if result_response.status_code != 200:
+                    error_details = ""
+                    try:
+                        error_data = result_response.json()
+                        error_details = str(error_data)
+                    except:
+                        error_details = result_response.text[:500]
+                    
                     return {
                         "success": False,
                         "error": f"获取结果失败: {result_response.status_code}",
+                        "details": error_details,
                     }
                 
                 result = result_response.json()

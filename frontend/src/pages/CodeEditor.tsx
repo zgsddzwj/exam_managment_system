@@ -17,6 +17,9 @@ export const CodeEditor: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [testing, setTesting] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [analyzing, setAnalyzing] = useState(false);
+  const [showAnalysis, setShowAnalysis] = useState(false);
+  const [analysisContent, setAnalysisContent] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -124,6 +127,30 @@ export const CodeEditor: React.FC = () => {
       alert(getErrorMessage(error, "提交代码失败"));
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleAnalysis = async () => {
+    if (!code.trim()) {
+      alert("请输入代码");
+      return;
+    }
+    setAnalyzing(true);
+    setAnalysisContent("");
+    setShowAnalysis(true);
+    try {
+      const result = await api.getCodeAnalysis(Number(taskId), code);
+      if (result.success && result.analysis) {
+        setAnalysisContent(result.analysis);
+      } else {
+        alert(getErrorMessage({ response: { data: result } }, "获取解析失败"));
+        setShowAnalysis(false);
+      }
+    } catch (error: any) {
+      alert(getErrorMessage(error, "获取解析失败"));
+      setShowAnalysis(false);
+    } finally {
+      setAnalyzing(false);
     }
   };
 
@@ -277,6 +304,7 @@ export const CodeEditor: React.FC = () => {
                 fontSize: "var(--font-size-base, 16px)",
                 fontWeight: 500,
                 transition: "background-color 0.2s ease",
+                marginRight: "10px",
               }}
               onMouseEnter={(e) => {
                 if (!submitting && !testing) {
@@ -290,6 +318,33 @@ export const CodeEditor: React.FC = () => {
               }}
             >
               {submitting ? "提交中..." : "提交"}
+            </button>
+            <button
+              onClick={handleAnalysis}
+              disabled={analyzing || testing || submitting}
+              style={{
+                padding: "8px 16px",
+                backgroundColor: "var(--warning-color, #f59e0b)",
+                color: "white",
+                border: "none",
+                borderRadius: "var(--radius-md, 6px)",
+                cursor: (analyzing || testing || submitting) ? "not-allowed" : "pointer",
+                fontSize: "var(--font-size-base, 16px)",
+                fontWeight: 500,
+                transition: "background-color 0.2s ease",
+              }}
+              onMouseEnter={(e) => {
+                if (!analyzing && !testing && !submitting) {
+                  e.currentTarget.style.backgroundColor = "var(--warning-hover, #d97706)";
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!analyzing && !testing && !submitting) {
+                  e.currentTarget.style.backgroundColor = "var(--warning-color, #f59e0b)";
+                }
+              }}
+            >
+              {analyzing ? "分析中..." : "查看解析"}
             </button>
           </div>
         </div>
@@ -536,6 +591,17 @@ export const CodeEditor: React.FC = () => {
                             [错误]:
                           </strong>
                           {result.error}
+                          {result.details && (
+                            <>
+                              <br />
+                              <strong style={{ fontSize: "var(--font-size-xs, 12px)", display: "block", marginTop: "4px" }}>
+                                [详细信息]:
+                              </strong>
+                              <div style={{ fontSize: "var(--font-size-xs, 12px)", marginTop: "4px" }}>
+                                {typeof result.details === 'string' ? result.details : JSON.stringify(result.details, null, 2)}
+                              </div>
+                            </>
+                          )}
                         </div>
                       )}
                       
@@ -774,6 +840,156 @@ export const CodeEditor: React.FC = () => {
           </div>
         )}
       </div>
+      
+      {/* 解析模态框 */}
+      {showAnalysis && (
+        <div style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: "rgba(0, 0, 0, 0.5)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          zIndex: 10000,
+        }} onClick={() => setShowAnalysis(false)}>
+          <div style={{
+            backgroundColor: "var(--bg-primary, #ffffff)",
+            borderRadius: "var(--radius-lg, 12px)",
+            boxShadow: "var(--shadow-xl, 0 20px 25px -5px rgba(0, 0, 0, 0.1))",
+            maxWidth: "800px",
+            width: "90%",
+            maxHeight: "80vh",
+            display: "flex",
+            flexDirection: "column",
+          }} onClick={(e) => e.stopPropagation()}>
+            {/* 模态框头部 */}
+            <div style={{
+              padding: "20px",
+              borderBottom: "1px solid var(--border-color, #e5e7eb)",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}>
+              <h2 style={{
+                margin: 0,
+                fontSize: "var(--font-size-xl, 20px)",
+                fontWeight: 600,
+                color: "var(--text-primary, #1f2937)",
+              }}>
+                💡 题目解析
+              </h2>
+              <button
+                onClick={() => setShowAnalysis(false)}
+                style={{
+                  background: "none",
+                  border: "none",
+                  fontSize: "24px",
+                  cursor: "pointer",
+                  color: "var(--text-secondary, #6b7280)",
+                  padding: "0",
+                  width: "32px",
+                  height: "32px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  borderRadius: "50%",
+                  transition: "background-color 0.2s ease",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = "var(--bg-secondary, #f9fafb)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = "transparent";
+                }}
+              >
+                ×
+              </button>
+            </div>
+            
+            {/* 模态框内容 */}
+            <div style={{
+              padding: "24px",
+              overflowY: "auto",
+              flex: 1,
+            }}>
+              {analyzing ? (
+                <div style={{
+                  textAlign: "center",
+                  padding: "40px",
+                }}>
+                  <div style={{
+                    width: "48px",
+                    height: "48px",
+                    border: "4px solid var(--border-color, #e5e7eb)",
+                    borderTopColor: "var(--warning-color, #f59e0b)",
+                    borderRadius: "50%",
+                    animation: "spin 0.8s linear infinite",
+                    margin: "0 auto 20px",
+                  }}></div>
+                  <div style={{
+                    fontSize: "var(--font-size-base, 16px)",
+                    color: "var(--text-secondary, #6b7280)",
+                  }}>
+                    AI正在分析题目和您的代码...
+                  </div>
+                </div>
+              ) : analysisContent ? (
+                <div style={{
+                  fontSize: "var(--font-size-base, 16px)",
+                  lineHeight: 1.8,
+                  color: "var(--text-primary, #1f2937)",
+                  whiteSpace: "pre-wrap",
+                  fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+                }}>
+                  {analysisContent}
+                </div>
+              ) : (
+                <div style={{
+                  textAlign: "center",
+                  padding: "40px",
+                  color: "var(--text-secondary, #6b7280)",
+                }}>
+                  暂无解析内容
+                </div>
+              )}
+            </div>
+            
+            {/* 模态框底部 */}
+            <div style={{
+              padding: "16px 24px",
+              borderTop: "1px solid var(--border-color, #e5e7eb)",
+              display: "flex",
+              justifyContent: "flex-end",
+            }}>
+              <button
+                onClick={() => setShowAnalysis(false)}
+                style={{
+                  padding: "10px 24px",
+                  backgroundColor: "var(--primary-color, #1e40af)",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "var(--radius-md, 6px)",
+                  cursor: "pointer",
+                  fontSize: "var(--font-size-base, 16px)",
+                  fontWeight: 500,
+                  transition: "background-color 0.2s ease",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = "var(--primary-hover, #1e3a8a)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = "var(--primary-color, #1e40af)";
+                }}
+              >
+                关闭
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

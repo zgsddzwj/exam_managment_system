@@ -87,7 +87,7 @@ class ApiClient {
             }
             // 如果是登录页面，不跳转
             if (!window.location.pathname.includes("/login")) {
-              window.location.href = "/login";
+            window.location.href = "/login";
             }
             return Promise.reject(error);
           }
@@ -215,6 +215,13 @@ class ApiClient {
     const response = await this.client.post(`/submissions/tasks/${taskId}/submit/`, {
       code_content: codeContent,
       language,
+    });
+    return response.data;
+  }
+
+  async getCodeAnalysis(taskId: number, codeContent: string) {
+    const response = await this.client.post(`/submissions/tasks/${taskId}/analysis/`, {
+      code_content: codeContent,
     });
     return response.data;
   }
