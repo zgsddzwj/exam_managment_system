@@ -53,6 +53,28 @@ export const ClassList: React.FC = () => {
     }
   };
 
+  const handleCopyInvitationCode = async (code: string) => {
+    try {
+      await navigator.clipboard.writeText(code);
+      alert("邀请码已复制到剪贴板！");
+    } catch (error) {
+      // 如果 clipboard API 不可用，使用备用方法
+      const textArea = document.createElement("textarea");
+      textArea.value = code;
+      textArea.style.position = "fixed";
+      textArea.style.left = "-999999px";
+      document.body.appendChild(textArea);
+      textArea.select();
+      try {
+        document.execCommand("copy");
+        alert("邀请码已复制到剪贴板！");
+      } catch (err) {
+        alert("复制失败，请手动复制邀请码");
+      }
+      document.body.removeChild(textArea);
+    }
+  };
+
   if (loading)
     return (
       <div style={{ padding: "40px", textAlign: "center" }}>
@@ -327,24 +349,46 @@ export const ClassList: React.FC = () => {
                   border: "1px solid var(--primary-light, #3b82f6)",
                 }}
               >
-                <p style={{
-                  margin: "0 0 10px 0",
-                  fontSize: "var(--font-size-sm, 14px)",
-                  color: "var(--text-primary, #1f2937)",
-                }}>
-                  <strong>邀请码:</strong>{" "}
-                  <span
+                <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "10px", flexWrap: "wrap" }}>
+                  <p style={{
+                    margin: 0,
+                    fontSize: "var(--font-size-sm, 14px)",
+                    color: "var(--text-primary, #1f2937)",
+                  }}>
+                    <strong>邀请码:</strong>{" "}
+                    <span
+                      style={{
+                        fontSize: "var(--font-size-xl, 20px)",
+                        fontWeight: "bold",
+                        color: "var(--primary-color, #1e40af)",
+                        fontFamily: "monospace",
+                        letterSpacing: "2px",
+                      }}
+                    >
+                      {cls.active_invitation_code.code}
+                    </span>
+                  </p>
+                  <button
+                    onClick={() => cls.active_invitation_code && handleCopyInvitationCode(cls.active_invitation_code.code)}
                     style={{
-                      fontSize: "var(--font-size-xl, 20px)",
-                      fontWeight: "bold",
-                      color: "var(--primary-color, #1e40af)",
-                      fontFamily: "monospace",
-                      letterSpacing: "2px",
+                      padding: "6px 12px",
+                      backgroundColor: "var(--success-color, #059669)",
+                      color: "white",
+                      border: "none",
+                      borderRadius: "var(--radius-md, 6px)",
+                      cursor: "pointer",
+                      fontSize: "var(--font-size-sm, 14px)",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "6px",
+                      transition: "background-color 0.2s ease",
                     }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "var(--success-hover, #047857)"}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "var(--success-color, #059669)"}
                   >
-                    {cls.active_invitation_code.code}
-                  </span>
-                </p>
+                    📋 复制
+                  </button>
+                </div>
                 <p style={{
                   margin: "0 0 12px 0",
                   fontSize: "var(--font-size-xs, 12px)",

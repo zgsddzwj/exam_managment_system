@@ -8,6 +8,7 @@ from .views import (
     export_grades,
     ExportGradesView,
     get_code_analysis,
+    task_statistics,
 )
 
 app_name = "submissions"
@@ -17,6 +18,7 @@ urlpatterns = [
     path("tasks/<int:task_id>/test/", test_code, name="test_code"),
     path("tasks/<int:task_id>/submit/", submit_code, name="submit_code"),
     path("tasks/<int:task_id>/analysis/", get_code_analysis, name="get_code_analysis"),
+    path("tasks/<int:task_id>/statistics/", task_statistics, name="task_statistics"),
     path("my/", my_submissions, name="my_submissions"),
     path("classes/<int:class_id>/", class_submissions, name="class_submissions"),
     path("<int:submission_id>/", submission_detail, name="submission_detail"),

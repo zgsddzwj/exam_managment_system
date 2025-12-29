@@ -119,16 +119,33 @@ export const CodeEditor: React.FC = () => {
     setTotalTime(elapsedTime);
     setSubmitting(true);
     try {
-      const result = await api.submitCode(Number(taskId), code, language);
-      alert("提交成功！");
-      if (result.submission && result.submission.id) {
-        navigate(`/submissions/${result.submission.id}`);
-      } else {
-        navigate("/my-tasks");
+      // 先执行提交，获取测试结果，同时传递学生作答总时间
+      const result = await api.submitCode(Number(taskId), code, language, elapsedTime);
+      
+      // 提交成功后，更新测试结果并显示总耗时
+      if (result.submission) {
+        // 如果有测试结果，更新显示
+        if (result.submission.test_results) {
+          setTestResults({
+            ...result.submission,
+            passed_count: result.submission.test_results.filter((r: any) => r.passed).length,
+            total_count: result.submission.test_results.length,
+          });
+        }
       }
+      
+      alert(`提交成功！总耗时: ${elapsedTime.toFixed(2)}秒`);
+      
+      // 延迟跳转，让用户看到测试结果和总耗时
+      setTimeout(() => {
+        if (result.submission && result.submission.id) {
+          navigate(`/submissions/${result.submission.id}`);
+        } else {
+          navigate("/my-tasks");
+        }
+      }, 2000);
     } catch (error: any) {
       alert(getErrorMessage(error, "提交代码失败"));
-    } finally {
       setSubmitting(false);
     }
   };
@@ -417,9 +434,9 @@ export const CodeEditor: React.FC = () => {
                   : "var(--warning-hover, #b45309)",
               }}>
                 通过: {testResults.passed_count} / {testResults.total_count}
-                {(totalTime !== null || testResults.total_time) && (
-                  <span style={{ marginLeft: "16px", fontSize: "var(--font-size-sm, 14px)" }}>
-                    耗时: {totalTime !== null ? totalTime.toFixed(2) : testResults.total_time.toFixed(2)}秒
+                {totalTime !== null && (
+                  <span style={{ marginLeft: "16px", fontSize: "var(--font-size-sm, 14px)", fontWeight: 600 }}>
+                    作答耗时: {totalTime.toFixed(2)}秒
                   </span>
                 )}
               </p>

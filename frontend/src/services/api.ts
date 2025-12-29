@@ -229,11 +229,15 @@ class ApiClient {
     return response.data;
   }
 
-  async submitCode(taskId: number, codeContent: string, language: "java" | "python") {
-    const response = await this.client.post(`/submissions/tasks/${taskId}/submit/`, {
+  async submitCode(taskId: number, codeContent: string, language: "java" | "python", completionTime?: number) {
+    const data: any = {
       code_content: codeContent,
       language,
-    });
+    };
+    if (completionTime !== undefined) {
+      data.completion_time = completionTime;
+    }
+    const response = await this.client.post(`/submissions/tasks/${taskId}/submit/`, data);
     return response.data;
   }
 
@@ -261,6 +265,11 @@ class ApiClient {
     const response = await this.client.get(`/submissions/classes/${classId}/`, { params });
     // 处理分页响应格式
     return response.data.results || response.data;
+  }
+
+  async getTaskStatistics(taskId: number) {
+    const response = await this.client.get(`/submissions/tasks/${taskId}/statistics/`);
+    return response.data;
   }
 
   async exportGrades(classId?: number, taskId?: number, format: "excel" | "csv" = "excel") {

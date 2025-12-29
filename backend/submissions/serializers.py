@@ -71,4 +71,5 @@ class SubmitCodeSerializer(serializers.Serializer):
     
     code_content = serializers.CharField(required=True)
     language = serializers.ChoiceField(choices=["java", "python"], required=True)
+    completion_time = serializers.FloatField(required=False, allow_null=True, help_text="学生作答总时间（从进入页面到提交，单位：秒）")
 

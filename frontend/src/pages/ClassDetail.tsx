@@ -39,6 +39,28 @@ export const ClassDetail: React.FC = () => {
     }
   };
 
+  const handleCopyInvitationCode = async (code: string) => {
+    try {
+      await navigator.clipboard.writeText(code);
+      alert("邀请码已复制到剪贴板！");
+    } catch (error) {
+      // 如果 clipboard API 不可用，使用备用方法
+      const textArea = document.createElement("textarea");
+      textArea.value = code;
+      textArea.style.position = "fixed";
+      textArea.style.left = "-999999px";
+      document.body.appendChild(textArea);
+      textArea.select();
+      try {
+        document.execCommand("copy");
+        alert("邀请码已复制到剪贴板！");
+      } catch (err) {
+        alert("复制失败，请手动复制邀请码");
+      }
+      document.body.removeChild(textArea);
+    }
+  };
+
   if (loading) return <div style={{ padding: "20px" }}>加载中...</div>;
   if (!classData) return <div style={{ padding: "20px" }}>班级不存在</div>;
 
@@ -75,13 +97,35 @@ export const ClassDetail: React.FC = () => {
               marginBottom: "20px",
             }}
           >
-            <p>
-              <strong>邀请码:</strong>{" "}
-              <span style={{ fontSize: "24px", fontWeight: "bold", color: "#007bff" }}>
-                {classData.active_invitation_code.code}
-              </span>
-            </p>
-            <p>
+            <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "10px", flexWrap: "wrap" }}>
+              <p style={{ margin: 0 }}>
+                <strong>邀请码:</strong>{" "}
+                <span style={{ fontSize: "24px", fontWeight: "bold", color: "#007bff", fontFamily: "monospace", letterSpacing: "2px" }}>
+                  {classData.active_invitation_code.code}
+                </span>
+              </p>
+              <button
+                onClick={() => handleCopyInvitationCode(classData.active_invitation_code!.code)}
+                style={{
+                  padding: "6px 12px",
+                  backgroundColor: "#28a745",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "4px",
+                  cursor: "pointer",
+                  fontSize: "14px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "6px",
+                  transition: "background-color 0.2s ease",
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#218838"}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#28a745"}
+              >
+                📋 复制
+              </button>
+            </div>
+            <p style={{ margin: "0 0 10px 0" }}>
               使用次数: {classData.active_invitation_code.current_uses} /{" "}
               {classData.active_invitation_code.max_uses || "∞"}
             </p>

@@ -16,6 +16,7 @@ import { SubmissionList } from "./pages/SubmissionList";
 import { SubmissionDetail } from "./pages/SubmissionDetail";
 import { AdminDashboard } from "./pages/AdminDashboard";
 import { Profile } from "./pages/Profile";
+import { TaskStatistics } from "./pages/TaskStatistics";
 
 function App() {
   return (
@@ -62,6 +63,14 @@ function App() {
             element={
               <ProtectedRoute requiredRole="teacher">
                 <TaskDetail />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/tasks/:taskId/statistics"
+            element={
+              <ProtectedRoute requiredRole="teacher">
+                <TaskStatistics />
               </ProtectedRoute>
             }
           />

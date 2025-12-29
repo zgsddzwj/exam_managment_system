@@ -188,6 +188,11 @@ def submit_code(request, task_id):
     # 获取测试次数
     test_count = TestAttempt.objects.filter(task=task, student=user).count()
     
+    # 获取学生作答总时间（如果前端提供了）
+    completion_time = serializer.validated_data.get("completion_time")
+    # 如果提供了学生作答总时间，使用它；否则使用代码运行时间
+    final_total_time = completion_time if completion_time is not None else total_time
+    
     # 创建或更新提交
     submission, created = Submission.objects.update_or_create(
         task=task,
@@ -197,7 +202,7 @@ def submit_code(request, task_id):
             "language": language,
             "score": score,
             "test_count": test_count,
-            "total_time": total_time,
+            "total_time": final_total_time,  # 保存学生作答总时间或代码运行时间
         }
     )
     
@@ -500,6 +505,69 @@ def class_submissions(request, class_id):
     
     serializer = SubmissionSerializer(submissions, many=True)
     return Response(serializer.data)
+
+
+@api_view(["GET"])
+@permission_classes([IsTeacherOrAdmin])
+def task_statistics(request, task_id):
+    """获取任务的所有学生作答统计（教师/管理员）"""
+    try:
+        task = Task.objects.get(id=task_id)
+    except Task.DoesNotExist:
+        return Response({"error": "任务不存在"}, status=status.HTTP_404_NOT_FOUND)
+    
+    # 检查权限：教师只能查看自己班级的任务
+    user = request.user
+    if user.is_teacher and task.class_obj.teacher != user:
+        return Response({"error": "您没有权限查看此任务的统计"}, status=status.HTTP_403_FORBIDDEN)
+    
+    # 获取该任务的所有提交
+    submissions = Submission.objects.filter(task_id=task_id).select_related("student").order_by("-submitted_at")
+    
+    # 获取该任务所属班级的所有学生
+    all_students = task.class_obj.students.all()
+    
+    # 构建统计数据
+    statistics = []
+    for student in all_students:
+        submission = submissions.filter(student=student).first()
+        statistics.append({
+            "student_id": student.id,
+            "student_username": student.username,
+            "student_email": student.email,
+            "student_first_name": student.first_name or "",
+            "student_last_name": student.last_name or "",
+            "has_submitted": submission is not None,
+            "submission_id": submission.id if submission else None,
+            "score": submission.score if submission else 0.0,
+            "test_count": submission.test_count if submission else 0,
+            "total_time": submission.total_time if submission else 0.0,
+            "submitted_at": submission.submitted_at.isoformat() if submission else None,
+            "language": submission.language if submission else None,
+        })
+    
+    # 计算统计信息
+    total_students = len(all_students)
+    submitted_count = len([s for s in statistics if s["has_submitted"]])
+    not_submitted_count = total_students - submitted_count
+    average_score = sum(s["score"] for s in statistics if s["has_submitted"]) / submitted_count if submitted_count > 0 else 0.0
+    
+    return Response({
+        "task": {
+            "id": task.id,
+            "title": task.title,
+            "class_name": task.class_obj.name,
+            "class_id": task.class_obj.id,
+        },
+        "summary": {
+            "total_students": total_students,
+            "submitted_count": submitted_count,
+            "not_submitted_count": not_submitted_count,
+            "submission_rate": (submitted_count / total_students * 100) if total_students > 0 else 0.0,
+            "average_score": round(average_score, 2),
+        },
+        "statistics": statistics,
+    })
 
 
 @api_view(["GET"])

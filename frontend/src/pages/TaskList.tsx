@@ -906,6 +906,23 @@ export const TaskList: React.FC = () => {
                   >
                     查看提交
                   </Link>
+                  <Link
+                    to={`/tasks/${task.id}/statistics`}
+                    style={{
+                      padding: "8px 16px",
+                      backgroundColor: "var(--info-color, #0891b2)",
+                      color: "white",
+                      textDecoration: "none",
+                      borderRadius: "var(--radius-md, 6px)",
+                      fontSize: "var(--font-size-sm, 14px)",
+                      fontWeight: 500,
+                      transition: "background-color 0.2s ease",
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "var(--info-hover, #0e7490)"}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "var(--info-color, #0891b2)"}
+                  >
+                    统计
+                  </Link>
                   <button
                     onClick={async () => {
                       try {
