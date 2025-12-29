@@ -10,6 +10,7 @@ import { CodeEditor } from "./pages/CodeEditor";
 import { MyTasks } from "./pages/MyTasks";
 import { MyClasses } from "./pages/MyClasses";
 import { TaskList } from "./pages/TaskList";
+import { TaskDetail } from "./pages/TaskDetail";
 import { ClassDetail } from "./pages/ClassDetail";
 import { SubmissionList } from "./pages/SubmissionList";
 import { SubmissionDetail } from "./pages/SubmissionDetail";
@@ -52,6 +53,14 @@ function App() {
             element={
               <ProtectedRoute requiredRole="teacher">
                 <TaskList />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/tasks/:id"
+            element={
+              <ProtectedRoute requiredRole="teacher">
+                <TaskDetail />
               </ProtectedRoute>
             }
           />

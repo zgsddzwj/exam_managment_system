@@ -593,14 +593,28 @@ export const TaskList: React.FC = () => {
                   <button
                     onClick={async () => {
                       try {
+                        console.log("开始导出成绩，任务ID:", task.id);
                         const blob = await api.exportGrades(undefined, task.id);
+                        console.log("导出成功，Blob大小:", blob.size);
+                        
+                        if (!blob || blob.size === 0) {
+                          alert("导出失败：返回的文件为空");
+                          return;
+                        }
+                        
                         const url = window.URL.createObjectURL(blob);
                         const a = document.createElement("a");
                         a.href = url;
                         a.download = `任务_${task.id}_成绩统计.xlsx`;
+                        document.body.appendChild(a);
                         a.click();
+                        document.body.removeChild(a);
+                        window.URL.revokeObjectURL(url);
+                        console.log("文件下载已触发");
                       } catch (error: any) {
-                        alert(getErrorMessage(error, "导出成绩失败"));
+                        console.error("导出成绩失败:", error);
+                        console.error("错误详情:", error.response);
+                        alert(getErrorMessage(error, "导出成绩失败，请检查是否有学生提交"));
                       }
                     }}
                     style={{

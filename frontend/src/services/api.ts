@@ -230,6 +230,21 @@ class ApiClient {
     const response = await this.client.patch(`/auth/${userId}/role/`, { role });
     return response.data;
   }
+
+  async updateUser(userId: number, data: {
+    username?: string;
+    email?: string;
+    first_name?: string;
+    last_name?: string;
+  }) {
+    const response = await this.client.patch(`/auth/${userId}/`, data);
+    return response.data;
+  }
+
+  async deleteUser(userId: number) {
+    const response = await this.client.delete(`/auth/${userId}/delete/`);
+    return response.data;
+  }
 }
 
 export const api = new ApiClient();

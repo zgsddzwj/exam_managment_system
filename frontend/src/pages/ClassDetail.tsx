@@ -120,11 +120,79 @@ export const ClassDetail: React.FC = () => {
       </div>
 
       <div style={{ marginTop: "30px" }}>
-        <h3>学生列表 ({classData.student_count})</h3>
-        {classData.student_count > 0 ? (
-          <p>共有 {classData.student_count} 名学生加入此班级</p>
+        <h3>学生列表 ({classData.student_count || (classData.students ? classData.students.length : 0)})</h3>
+        {classData.students && classData.students.length > 0 ? (
+          <div style={{ marginTop: "15px" }}>
+            <table
+              style={{
+                width: "100%",
+                borderCollapse: "collapse",
+                backgroundColor: "#fff",
+                borderRadius: "4px",
+                overflow: "hidden",
+                boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+              }}
+            >
+              <thead>
+                <tr style={{ backgroundColor: "#f8f9fa", borderBottom: "2px solid #dee2e6" }}>
+                  <th style={{ padding: "12px", textAlign: "left", fontWeight: "bold", borderBottom: "2px solid #dee2e6" }}>
+                    序号
+                  </th>
+                  <th style={{ padding: "12px", textAlign: "left", fontWeight: "bold", borderBottom: "2px solid #dee2e6" }}>
+                    用户名
+                  </th>
+                  <th style={{ padding: "12px", textAlign: "left", fontWeight: "bold", borderBottom: "2px solid #dee2e6" }}>
+                    邮箱
+                  </th>
+                  <th style={{ padding: "12px", textAlign: "left", fontWeight: "bold", borderBottom: "2px solid #dee2e6" }}>
+                    姓名
+                  </th>
+                  <th style={{ padding: "12px", textAlign: "left", fontWeight: "bold", borderBottom: "2px solid #dee2e6" }}>
+                    加入时间
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {classData.students.map((student, index) => (
+                  <tr
+                    key={student.id}
+                    style={{
+                      borderBottom: "1px solid #dee2e6",
+                      backgroundColor: index % 2 === 0 ? "#fff" : "#f8f9fa",
+                    }}
+                  >
+                    <td style={{ padding: "12px" }}>{index + 1}</td>
+                    <td style={{ padding: "12px", fontWeight: "500" }}>{student.username}</td>
+                    <td style={{ padding: "12px", color: "#6c757d" }}>{student.email}</td>
+                    <td style={{ padding: "12px" }}>
+                      {student.first_name || student.last_name
+                        ? `${student.first_name || ""} ${student.last_name || ""}`.trim()
+                        : "-"}
+                    </td>
+                    <td style={{ padding: "12px", color: "#6c757d" }}>
+                      {new Date(student.created_at).toLocaleString()}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         ) : (
-          <p>暂无学生</p>
+          <div
+            style={{
+              padding: "20px",
+              backgroundColor: "#f8f9fa",
+              borderRadius: "4px",
+              textAlign: "center",
+              color: "#6c757d",
+              marginTop: "15px",
+            }}
+          >
+            <p style={{ margin: "0" }}>暂无学生加入此班级</p>
+            <p style={{ margin: "10px 0 0 0", fontSize: "14px" }}>
+              学生可以通过邀请码加入班级
+            </p>
+          </div>
         )}
       </div>
 

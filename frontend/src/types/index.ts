@@ -15,7 +15,9 @@ export interface Class {
   teacher: number;
   teacher_name: string;
   student_count: number;
+  students?: User[]; // 班级详情时包含学生列表
   active_invitation_code?: InvitationCode;
+  invitation_codes?: InvitationCode[]; // 班级详情时包含所有邀请码
   created_at: string;
   updated_at: string;
 }
@@ -41,6 +43,7 @@ export interface Task {
   created_by_name: string;
   deadline?: string;
   test_case_count: number;
+  test_cases?: TestCase[]; // 任务详情时包含测试用例
   is_active: boolean;
   created_at: string;
   updated_at: string;

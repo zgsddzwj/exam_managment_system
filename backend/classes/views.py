@@ -38,9 +38,11 @@ class ClassDetailView(generics.RetrieveUpdateDestroyAPIView):
     
     def get_queryset(self):
         user = self.request.user
+        # 使用prefetch_related优化学生列表查询
+        queryset = Class.objects.prefetch_related('students').select_related('teacher')
         if user.is_admin:
-            return Class.objects.all()
-        return Class.objects.filter(teacher=user)
+            return queryset.all()
+        return queryset.filter(teacher=user)
 
 
 @api_view(["POST"])

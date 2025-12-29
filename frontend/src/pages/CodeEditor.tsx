@@ -204,13 +204,124 @@ export const CodeEditor: React.FC = () => {
         }}
       >
         <h3>任务描述</h3>
-        <div style={{ whiteSpace: "pre-wrap", marginTop: "15px" }}>{task.description}</div>
-        <div style={{ marginTop: "20px" }}>
+        <div style={{ whiteSpace: "pre-wrap", marginTop: "15px", marginBottom: "20px" }}>{task.description}</div>
+        
+        <div style={{ marginTop: "20px", marginBottom: "20px" }}>
           <strong>编程语言:</strong> {language === "java" ? "Java" : "Python"}
         </div>
+        
         {task.deadline && (
-          <div style={{ marginTop: "10px" }}>
+          <div style={{ marginTop: "10px", marginBottom: "20px" }}>
             <strong>截止时间:</strong> {new Date(task.deadline).toLocaleString()}
+          </div>
+        )}
+
+        {/* 测试用例部分 */}
+        {task.test_cases && task.test_cases.length > 0 && (
+          <div style={{ marginTop: "30px", borderTop: "2px solid #ddd", paddingTop: "20px" }}>
+            <h3 style={{ marginBottom: "15px", color: "#007bff" }}>测试用例</h3>
+            <div style={{ fontSize: "14px", color: "#666", marginBottom: "15px" }}>
+              以下是用于测试的输入和预期输出，点击"测试"按钮时会使用这些测试用例进行验证。
+            </div>
+            {task.test_cases.map((testCase, index) => (
+              <div
+                key={testCase.id || index}
+                style={{
+                  marginBottom: "20px",
+                  padding: "15px",
+                  backgroundColor: "#ffffff",
+                  border: "1px solid #ddd",
+                  borderRadius: "6px",
+                  boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+                }}
+              >
+                <div style={{ 
+                  fontSize: "16px", 
+                  fontWeight: "bold", 
+                  marginBottom: "10px",
+                  color: "#495057",
+                  display: "flex",
+                  alignItems: "center"
+                }}>
+                  <span style={{
+                    display: "inline-block",
+                    width: "24px",
+                    height: "24px",
+                    lineHeight: "24px",
+                    textAlign: "center",
+                    backgroundColor: "#007bff",
+                    color: "white",
+                    borderRadius: "50%",
+                    marginRight: "8px",
+                    fontSize: "12px"
+                  }}>
+                    {index + 1}
+                  </span>
+                  测试用例 {index + 1}
+                </div>
+                
+                <div style={{ marginBottom: "12px" }}>
+                  <div style={{ 
+                    fontWeight: "600", 
+                    color: "#495057", 
+                    marginBottom: "5px",
+                    fontSize: "14px"
+                  }}>
+                    输入:
+                  </div>
+                  <div style={{
+                    padding: "10px",
+                    backgroundColor: "#f8f9fa",
+                    border: "1px solid #e9ecef",
+                    borderRadius: "4px",
+                    fontFamily: "monospace",
+                    fontSize: "13px",
+                    whiteSpace: "pre-wrap",
+                    wordBreak: "break-all",
+                    color: "#212529"
+                  }}>
+                    {testCase.input_data || "(无)"}
+                  </div>
+                </div>
+                
+                <div>
+                  <div style={{ 
+                    fontWeight: "600", 
+                    color: "#495057", 
+                    marginBottom: "5px",
+                    fontSize: "14px"
+                  }}>
+                    预期输出:
+                  </div>
+                  <div style={{
+                    padding: "10px",
+                    backgroundColor: "#e7f3ff",
+                    border: "1px solid #b3d9ff",
+                    borderRadius: "4px",
+                    fontFamily: "monospace",
+                    fontSize: "13px",
+                    whiteSpace: "pre-wrap",
+                    wordBreak: "break-all",
+                    color: "#004085"
+                  }}>
+                    {testCase.expected_output || "(无)"}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+        
+        {(!task.test_cases || task.test_cases.length === 0) && (
+          <div style={{ 
+            marginTop: "30px", 
+            padding: "15px", 
+            backgroundColor: "#fff3cd", 
+            border: "1px solid #ffc107",
+            borderRadius: "4px",
+            color: "#856404"
+          }}>
+            <strong>提示:</strong> 该任务暂无测试用例。
           </div>
         )}
       </div>

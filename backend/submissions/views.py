@@ -277,7 +277,26 @@ def export_grades(request):
     task_id = request.query_params.get("task_id")
     format_type = request.query_params.get("format", "excel")  # excel or csv
     
-    if format_type == "csv":
-        return export_submissions_to_csv(class_id=class_id, task_id=task_id)
-    else:
-        return export_submissions_to_excel(class_id=class_id, task_id=task_id)
+    # 转换为整数类型（如果提供了值）
+    try:
+        class_id = int(class_id) if class_id else None
+    except (ValueError, TypeError):
+        class_id = None
+    
+    try:
+        task_id = int(task_id) if task_id else None
+    except (ValueError, TypeError):
+        task_id = None
+    
+    try:
+        if format_type == "csv":
+            return export_submissions_to_csv(class_id=class_id, task_id=task_id)
+        else:
+            return export_submissions_to_excel(class_id=class_id, task_id=task_id)
+    except Exception as e:
+        from rest_framework.response import Response
+        from rest_framework import status
+        return Response(
+            {"error": f"导出失败: {str(e)}"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
